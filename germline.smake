@@ -45,7 +45,7 @@ rule vcf2plink:
     params:
         prefix="{dir}/{file}"
     shell:
-        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {RES_DIR}/plink.chrALL.GRCh37.map.gz"
+        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {REF_DIR}/plink.chrALL.GRCh37.map.gz"
 
 
 rule estimateIBD0:
