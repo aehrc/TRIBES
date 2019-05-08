@@ -1,0 +1,147 @@
+##
+## Rules for pre-processing
+## 
+
+REF_DIR = config['ref_dir']
+REF_SAMPLE = config['ref_sample']
+PHASING_REF=os.path.join(REF_DIR, REF_SAMPLE)
+
+#
+# Fixed rule to generate refrence population from the LD results
+#
+
+rule subset_g1k:
+    input:
+        subset="{dir}/{file}.vcf.gz",
+        subset_idx="{dir}/{file}.vcf.gz.csi",
+        g1k=os.path.join(PHASING_REF,"{file}.vcf.gz") 
+    output:
+        "{dir}_G1K/{file}.vcf.gz"
+    shell:
+       "bcftools view -R {input.subset} {input.g1k} -Oz -o {output}" 
+
+
+#
+# Phase With Reference Geonme
+#
+
+rule phase_with_ref:
+    input:
+       "{dir}/{file}.vcf.gz"
+    output:
+       "{dir}_RPH/{file}.vcf.gz"
+    params:
+       prefix="{dir}_RPH/{file}"
+    shell:
+        "java -Xmx16g -Xss5m -jar /apps/beagle/4.1/beagle.jar impute=false gt={input} ref={PHASING_REF}/{wildcards.file}.vcf.gz out={params.prefix}"
+
+#
+# Phase WITHOUT Reference Geonme
+#
+
+rule phase_without_ref:
+    input:
+       "{dir}/{file}.vcf.gz"
+    output:
+       "{dir}_PH/{file}.vcf.gz"
+    params:
+       prefix="{dir}_PH/{file}"
+    shell:
+        "beagle -Xmx8g -Xss5m impute=false gt={input} out={params.prefix}"
+
+
+#
+# Run LD Prunning
+#
+
+rule ld_prune:
+    input:
+        vcf="{dir}/{file}.vcf.gz",
+        idx="{dir}/{file}.vcf.gz.csi"
+    output:
+        vcf="{dir}_LD/{file}.vcf.gz",
+        tsv="{dir}_LD/{file}.tsv.gz"
+    shell:
+        "bcftools isec -n=2 -w 1 {REF_DIR}/G1K_SNP_EUR/{wildcards.file}.vcf.gz {input.vcf} -Ou | bcftools +prune  -l 0.95 -w 1kb -Ou - | bcftools query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\n' -H - | bgzip > {output.tsv} && tabix -s1 -b2 -e2 {output.tsv} && bcftools view -R {output.tsv} {input.vcf} -Oz -o {output.vcf}"
+
+#
+# Annotate with population AF (EUR_AF) and filter by  MAF
+#
+
+rule annotate_eur_af:
+    input:
+        "{dir}/chr{chri}.vcf.gz"
+    output:
+        "{dir}_EurAF:{maf,[^_]+}/chr{chri}.vcf.gz"
+    params:
+        maf_upper = lambda wildcards: str(1-float(wildcards['maf']))
+    shell:
+        "bcftools annotate -a {REF_DIR}/G1K_SNP_EUR_EAF/chr{wildcards.chri}.tsv.gz -c 'CHROM,POS,REF,ALT,EUR_AF' -h {RES_DIR}/header_EUR_AF.vcf -Ou {input} |  bcftools view -i 'INFO/EUR_AF>={wildcards.maf} & INFO/EUR_AF<={params.maf_upper}' -Oz -o {output} -"
+
+
+#
+# Filter: retain only  Bi Allelic SNPs with No Missing Genotypes
+#
+
+rule biallelic_snps_no_miss:
+    input:
+        "{dir}/{file}.vcf.gz"
+    output:
+        "{dir}_BiSnpNM/{file}.vcf.gz"
+    shell:
+        "bcftools view -m2 -M2 -v snps -g ^miss -Oz -o {output} {input}"
+
+
+rule biallelic_snps:
+    input:
+        "{dir}/{file}.vcf.gz"
+    output:
+        "{dir}_BiSnp/{file}.vcf.gz"
+    shell:
+        "bcftools view -m2 -M2 -v snps -Oz -o {output} {input}"
+
+rule no_miss:
+    input:
+        "{dir}/{file}.vcf.gz"
+    output:
+        "{dir}_NM/{file}.vcf.gz"
+    shell:
+        "bcftools view -g ^miss -Oz -o {output} {input}"
+
+
+#
+# Apply quality filters
+#
+
+rule quality_checks:
+    input:
+        "{dir}/{file}.vcf.gz"
+    output:
+        "{dir}_QC/{file}.vcf.gz"
+    conda:
+        "envs/tri.yaml"
+    shell:
+        "bcftools view -i 'INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1' -f PASS -Ou {input} | "
+        "bcftools annotate -x INFO,FMT -Oz -o {output} -"
+
+
+rule select_sample:
+    input:
+        vcf="{dir}/{file}.vcf.gz",
+        csi="{dir}/{file}.vcf.gz.csi"
+    output:
+        "{dir}_S:{sample}/{file}.vcf.gz"
+    shell:
+        "bcftools view -S {RES_DIR}/{wildcards.sample}_sample.txt --force-samples -Oz -o {output} {input.vcf}"
+
+#
+# Filter phased VCF on list of rsIDs from HapMap
+#
+
+rule filter_rsIDs:
+    input:
+        "{dir}/{file}.vcf.gz"
+    output:
+        "{dir}_HapMap/{file}.vcf.gz"
+    shell:
+        "vcftools --gzvcf {input} --snps {RES_DIR}/genotypes_wgs_SALS_v1_ld95_rsID.txt --recode --recode-INFO-all --stdout | bgzip > {output} "

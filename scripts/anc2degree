@@ -1,0 +1,68 @@
+#!/usr/bin/env Rscript
+library(dplyr)
+library(gtools)
+library(optparse)
+
+option_list = list(
+    make_option(c("-i", "--input"), dest="inputFile", type="character", default=NULL,
+                help="input file name (germline match file)", metavar="character"),
+    make_option(c("-o", "--output"), dest="outputFile", type="character", default=NULL,
+                help="output file name [default= %default]", metavar="character"),
+    make_option(c("-v", "--verbose"), dest="verbose",default=FALSE, action="store_true",
+                help="produce verbose output")
+);
+
+opt_parser = OptionParser(option_list=option_list)
+args = parse_args(opt_parser)
+
+if (args$help) {
+    print_help(opt_parser)
+    exit(0)
+}
+
+if (args$verbose) {
+	print(args)
+}
+
+if (is.null(args$inputFile) | is.null(args$outputFile)){
+    print_help(opt_parser)
+    stop("Both input file and output file are mandatory.", call.=FALSE)
+}
+
+with(args, {
+    ancestry <-read.csv(gzfile(inputFile), header = TRUE, stringsAsFactors = FALSE)
+
+    if (verbose) {
+        print(head(ancestry))
+    }
+#
+# Not sure how to solve it in generic case but for fake family it's
+# Two shared common ancestors will always have the same distacne
+#
+
+    relDegree <- ancestry %>%
+            mutate(
+                NoMeioses=case_when(
+                    ANC1!='' & ANC2!='' ~  (DIST_ANC1_1 + DIST_ANC1_2)-1,
+                    ANC1=='' & ANC2=='' ~ NA_real_,
+                    TRUE ~ na.replace(DIST_ANC1_1,0) + na.replace(DIST_ANC1_2,0) +  na.replace(DIST_ANC2_1,0) +  na.replace(DIST_ANC2_2,0)
+                ),
+                NoAnc=case_when(
+                    ANC1!='' & ANC2!='' ~ 2,
+                    ANC1=='' & ANC2=='' ~ 0,
+                    TRUE ~ 1
+                )
+            ) %>% mutate(
+              Degree = case_when(
+                  NoAnc == 0 ~ 'NA',
+                  NoAnc == 1 & NoMeioses =='1' ~ 'PO',
+                  TRUE ~ as.character(NoMeioses)
+              )
+            ) %>% select(ID1,ID2, Degree, NoMeioses, NoAnc)
+
+    if (verbose) {
+        print(head(relDegree))
+    }
+
+    write.table(relDegree, outputFile, quote = FALSE, row.names = FALSE, sep = '\t')
+})

@@ -1,0 +1,53 @@
+#!/bin/sh
+set  -e
+set  -x
+
+
+PWD=$(cd "`dirname $0`"/..; pwd)
+
+function fatal_error () {
+    echo "ERROR: $1" 1>&2
+    exit 1
+}
+
+INTERPOLATE_SCRIPT="${PWD}/python/interpolate_maps_perchr2.py"
+RECOMB_MAP=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    -i)
+      shift
+      INPUT_PATH=$1
+      ;;
+    -o)
+      shift
+      OUTPUT_PATH=$1
+      ;;
+    -r)
+      shift
+      RECOMB_MAP=$1
+      ;;
+    -*)
+      error_msg "unrecognized option: $1"
+      ;;
+    *)
+      break;
+      ;;
+    esac
+    shift
+done
+
+
+echo "Input: ${INPUT_PATH:?Input must be set}"
+echo "Output: ${OUTPUT_PATH:?Output must be set}"
+echo "Recombination map: ${RECOMB_MAP}"
+
+#generate output in plink map + ped format
+echo "Running conversion to plink"
+vcftools --gzvcf "${INPUT_PATH}" --plink --out "${OUTPUT_PATH}"
+
+if [ -n "${RECOMB_MAP}" ]; then
+    echo "Running interpolation"
+    python "${INTERPOLATE_SCRIPT}" "${OUTPUT_PATH}.map" "${RECOMB_MAP}" "${OUTPUT_PATH}_interpolated.map"
+fi
+

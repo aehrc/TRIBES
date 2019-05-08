@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# A simple script to unphase a vcf file
+# Reads from stdin and outpus to stdout
+# Example usage:
+#	gunzip -c foo.bgz | unphase | bgzip > bar.bgz
+
+sed '/^##/! s/|/\//g'
+

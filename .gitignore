@@ -1,0 +1,14 @@
+#Empty
+.Rhistory
+.RData
+R/*.html
+tmp
+.*pyc
+log
+audit
+nohup.out
+*.pyc
+*.egg-info
+.nfs*
+.Rproj.user
+*.html

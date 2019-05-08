@@ -1,0 +1,70 @@
+##
+## Common rules
+##
+
+import os
+PWD=os.path.dirname(workflow.snakefile)
+
+BASE_DIR=PWD
+BIN_DIR=os.path.join(BASE_DIR,"scripts")
+RES_DIR=os.path.join(PWD,"res")
+
+# List of chromosomes
+
+CHRI=[ str(i) for i in range(1,23)]
+
+#
+# Split vcf file by chromosome
+#
+
+rule split_by_chr:
+    input:
+       vcf="{sample}.vcf.gz",
+       index="{sample}.vcf.gz.csi"
+    output:
+        "{sample}/chr{chri}.vcf.gz"
+    shell:
+        "bcftools view -r {wildcards.chri} {input.vcf} -Oz > {output}"
+
+#
+# Run command for all chromosomes
+#
+
+rule all_chrs:
+   input:
+       [ "{dir}/chr%s.vcf.gz" % chri for chri in CHRI ]
+   output:
+       "{dir}/allchr"
+   shell:
+       "touch {output}"
+
+
+rule combine_vcf:
+    input:
+        ["{file}/chr%s.vcf.gz" % chri for chri in CHRI]
+    output:
+        "{file}-all.vcf.gz"
+    wildcard_constraints:
+        file="[^/]+"
+    shell:
+        "bcftools concat -n {input} -Oz > {output}"
+
+rule combine_gz:
+    input:
+        *["{file}/chr%s.{ext}" % chri for chri in CHRI]  
+    output:
+        "{file}-allchr.{ext}.gz"
+    shell:
+        "cat {input} | bgzip > {output}"    
+
+#
+# Index vcf.gz
+#
+
+rule index_vcf_gz:
+    input:
+        "{path}.vcf.gz"
+    output:
+        "{path}.vcf.gz.csi"
+    shell:
+        "bcftools index {input}"

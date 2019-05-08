@@ -1,0 +1,69 @@
+##
+## Relatetness related rules
+##
+
+ERSA_SAMPLE="ALS850-OK_BiSnp_QC_EurAF:0.01_LD"
+ERSA_MASK="%s_G1K_GRM_ERCM/ersa.out.msk" % ERSA_SAMPLE
+
+rule ersa_with_masking:
+    input:
+        segments = [ "{dir}/chr%s.match"%chri for chri in CHRI ],
+        mask =  ERSA_MASK
+    output:
+        "{dir}_ERSA/ersa.out"
+    shell:
+         "module load python/2.7.13 && {BIN_DIR}/ersa --segment_files '{wildcards.dir}/*.match' --mask_region_file {input.mask}"
+         " --output_file {output} --max_meioses 20 --mask_common_shared_regions=true"
+
+rule ersa_create_mask:
+    input:
+        [ "{dir}/chr%s.match"%chri for chri in CHRI ]
+    output:
+        "{dir}_ERCM/ersa.out.msk"
+    shell:
+         "module load python/2.7.13 && {BIN_DIR}/ersa --segment_files {RES_DIR}/empty.match --control_files '{wildcards.dir}/*.match' "
+         " --output_file {wildcards.dir}_ERCM/ersa.out --max_meioses 20 --mask_common_shared_regions=true"
+ 
+rule germline:
+    input:
+        ped="{dir}/{file}.ped", 
+        map="{dir}/{file}_interpolated.map"
+    output:
+        "{dir}_GRM/{file}.match"
+    params:
+        prefix="{dir}_GRM/{file}"
+    shell:
+        "{BIN_DIR}/germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m 1.5 -err_het 1 -err_hom 2 -g_extend -w_extend"
+
+rule vcf2plink:
+    input:
+         "{dir}/{file}.vcf.gz"
+    output:
+         "{dir}/{file}.map",
+         "{dir}/{file}.ped",
+         "{dir}/{file}_interpolated.map"
+    params:
+        prefix="{dir}/{file}"
+    shell:
+        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {RES_DIR}/plink.chrALL.GRCh37.map.gz"
+
+
+rule estimateIBD0:
+    input:
+        "{filename}-allchr.match.gz"
+    output:
+        "{filename}_IBD-allchr.csv"
+    shell:
+        "{BIN_DIR}/ibd2degree -v -i {input} -o {output}"
+
+
+rule compare_vs_true_rel:
+    input:
+        estRel="{filename}.csv", 
+        trueRel=config['rel_true'],
+        rmd=os.path.join(PWD, "notebooks/compare_vs_true_rel.Rmd")
+    output:
+        "{filename}_RVT.html"
+    script:
+        "notebooks/compare_vs_true_rel.Rmd"
+
