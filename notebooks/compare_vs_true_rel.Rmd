@@ -1,0 +1,77 @@
+---
+title: "IBD_analysis_perDegree"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, fig.width=12, fig.height=8)
+```
+
+```{r echo=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tribes.tools)
+```
+
+```{r echo=FALSE, warning=TRUE}
+#Snakemake interface
+args = list()
+if (exists('snakemake')) {
+    args = list(estimatedRelFile = snakemake@input$estRel, 
+                trueRelFile = snakemake@input$trueRel)
+    
+} else {
+    warning("Not running with snakemake. Using test arguments!!!")
+    args = list(estimatedRelFile = '~/tmp/flush/ALS850-Fam12_BiSnp_QC_EurAF:0.01_LD_PH_GRM_IBD-allchr.csv', 
+                trueRelFile = '../../data/SOD1_relationship_pairs_POFS.txt')
+}
+print(args)
+```
+
+
+```{r}
+estimatedRelations <- read.csv(args$estimatedRelFile, header = TRUE, stringsAsFactors = FALSE) %>% 
+    mutate(EstDegree = as.relDegree(EstDegree))
+trueRelations <- readRelations(args$trueRelFile)
+estimateRelationsWithTrue <- inner_join(estimatedRelations, trueRelations, by=c('Id1', 'Id2'))
+head(estimateRelationsWithTrue)
+```
+
+```{r}
+#group and count by Known degree:Predicted degree combination
+estimatedVsTruth <- estimateRelationsWithTrue %>%
+  group_by(Degree, EstDegree) %>%
+  count()
+
+head(estimatedVsTruth)
+```
+
+
+```{r}
+#make plot comparing estimated to true degree - excluding unrelated as it distorts scale
+print(
+    ggplot(estimatedVsTruth, aes(Degree, EstDegree)) 
+        + geom_point(aes(size = n)) 
+        + geom_text(aes(label=n),hjust=0.5, vjust=-1, colour='red') 
+        + theme_bw()
+        + labs(title="Predicted vs True with UR",
+                        y="Estimated degree of relationship",
+                        x="Degree of reported relationship")
+)
+```
+
+
+```{r}
+#make plot comparing estimated to true degree - excluding unrelated as it distorts scale
+print(
+    ggplot(estimatedVsTruth %>% filter(Degree != "UR") , aes(Degree, EstDegree)) 
+        + geom_point(aes(size = n)) 
+        + geom_text(aes(label=n),hjust=0.5, vjust=-1, colour='red') 
+        + theme_bw()
+        + labs(title="Predicted vs True no UR",
+                        y="Estimated degree of relationship",
+                        x="Degree of reported relationship")
+)
+```

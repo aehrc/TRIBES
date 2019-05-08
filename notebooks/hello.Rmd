@@ -1,0 +1,12 @@
+---
+title: "IBD_analysis_perDegree"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+print("Hello from r")
+print(getwd())
+print(snakemake)
+```
