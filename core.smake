@@ -11,7 +11,8 @@ RES_DIR=os.path.join(PWD,"res")
 
 # List of chromosomes
 
-CHRI=[ str(i) for i in range(1,23)]
+DEF_CHRI=[ str(i) for i in range(1,23)]
+CHRI=config['contigs'].split() if 'contigs' in config else DEF_CHRI 
 
 #
 # Split vcf file by chromosome
