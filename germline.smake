@@ -48,13 +48,22 @@ rule vcf2plink:
         "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {REF_DIR}/plink.chrALL.GRCh37.map.gz"
 
 
+rule FPI_filter_population_ibd:
+    input:
+        "{filename}.match.gz"
+    output:
+        "{filename}_FPI.match.gz"
+    shell:
+        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {REF_DIR}/G1K_EUR-ersa.out.msk"
+
+
 rule estimateIBD0:
     input:
-        "{filename}-allchr.match.gz"
+        "{filename}.match.gz"
     output:
-        "{filename}_IBD-allchr.csv"
+        "{filename}_IBD.csv"
     shell:
-        "{BIN_DIR}/ibd2degree -v -i {input} -o {output}"
+        "{BIN_DIR}/ibd2degree -v -i {input} -o {output} -m 3.0"
 
 
 rule compare_vs_true_rel:

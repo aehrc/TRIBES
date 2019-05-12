@@ -18,9 +18,12 @@ REL_SAMPLE=config['rel_sample']
 
 rule all:
     input:   
-        "_".join([REL_SAMPLE,'GRM','IBD-allchr.csv'])
+        "_".join([REL_SAMPLE,'GRM-allchr','IBD.csv'])
 
 rule all_report:
     input:
-        "_".join([REL_SAMPLE,'GRM','IBD-allchr','RVT.html'])
+        "_".join([REL_SAMPLE,'GRM-allchr','IBD','RVT.html'])
 
+rule report_with_mask:
+    input:
+        "_".join([REL_SAMPLE,'GRM-allchr','FPI', 'IBD','RVT.html'])
