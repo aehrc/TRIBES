@@ -9,6 +9,13 @@ BASE_DIR=PWD
 BIN_DIR=os.path.join(BASE_DIR,"scripts")
 RES_DIR=os.path.join(PWD,"res")
 
+
+REF_DIR = config.get('ref_dir', '')
+
+def ref_path(filename):
+  return os.path.join(REF_DIR, filename)
+
+
 # List of chromosomes
 
 DEF_CHRI=[ str(i) for i in range(1,23)]

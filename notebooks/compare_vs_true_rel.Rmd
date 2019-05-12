@@ -24,18 +24,21 @@ if (exists('snakemake')) {
     
 } else {
     warning("Not running with snakemake. Using test arguments!!!")
-    args = list(estimatedRelFile = '~/tmp/flush/ALS850-Fam12_BiSnp_QC_EurAF:0.01_LD_PH_GRM_IBD-allchr.csv', 
-                trueRelFile = '../../data/SOD1_relationship_pairs_POFS.txt')
+    args = list(estimatedRelFile = '~/tmp/tribes/TFEur/FF-EUR-15-30-2-mut_BiSnp_EurAF:0.01_LD_PH_GRM-allchr_IBD.csv', 
+                trueRelFile = '~/tmp/tribes/TFEur/FF-EUR-15-30-2-mut_relations.txt')
 }
 print(args)
 ```
 
-
 ```{r}
-estimatedRelations <- read.csv(args$estimatedRelFile, header = TRUE, stringsAsFactors = FALSE) %>% 
-    mutate(EstDegree = as.relDegree(EstDegree))
+estimatedRelations <- normalizeRelations(read.csv(args$estimatedRelFile, header = TRUE, stringsAsFactors = FALSE) %>% 
+    mutate(EstDegree = as.relDegree(EstDegree)))
 trueRelations <- readRelations(args$trueRelFile)
-estimateRelationsWithTrue <- inner_join(estimatedRelations, trueRelations, by=c('Id1', 'Id2'))
+estimateRelationsWithTrue <- left_join(trueRelations, estimatedRelations, by=c('Id1', 'Id2')) %>%
+    mutate(
+        EstDegree = na.replace(EstDegree, as.relDegree('UR')), 
+        IBD0.cM = na.replace(IBD0.cM, 1.0)
+    )
 head(estimateRelationsWithTrue)
 ```
 

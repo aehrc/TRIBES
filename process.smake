@@ -2,7 +2,6 @@
 ## Rules for pre-processing
 ## 
 
-REF_DIR = config['ref_dir']
 REF_SAMPLE = config['ref_sample']
 PHASING_REF=os.path.join(REF_DIR, REF_SAMPLE)
 
@@ -63,6 +62,22 @@ rule ld_prune:
         tsv="{dir}_LD/{file}.tsv.gz"
     shell:
         "bcftools isec -n=2 -w 1 {REF_DIR}/G1K_SNP_EUR/{wildcards.file}.vcf.gz {input.vcf} -Ou | bcftools +prune  -l 0.95 -w 1kb -Ou - | bcftools query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\n' -H - | bgzip > {output.tsv} && tabix -s1 -b2 -e2 {output.tsv} && bcftools view -R {output.tsv} {input.vcf} -Oz -o {output.vcf}"
+
+
+#
+# Filter by MAF
+#
+
+#rule MAF_prune:
+#    input:
+#        vcf="{dir}/{file}.vcf.gz",
+#        idx="{dir}/{file}.vcf.gz.csi"
+#    output:
+#        vcf="{dir}_LD/{file}.vcf.gz",
+#        tsv="{dir}_LD/{file}.tsv.gz"
+#    shell:
+#        "bcftools isec -n=2 -w 1 {REF_DIR}/G1K_SNP_EUR/{wildcards.file}.vcf.gz {input.vcf} -Ou | bcftools +prune  -l 0.95 -w 1kb -Ou - | bcftools query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\n' -H - | bgzip > {output.tsv} && tabix -s1 -b2 -e2 {output.tsv} && bcftools view -R {output.tsv} {input.vcf} -Oz -o {output.vcf}"
+
 
 #
 # Annotate with population AF (EUR_AF) and filter by  MAF

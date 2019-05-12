@@ -1,0 +1,39 @@
+#!/usr/bin/env Rscript
+library(optparse)
+library(tribes.tools)
+
+option_list = list(
+    make_option(c("-i", "--input"), dest="inputFile", type="character", default=NULL, 
+                help="input file name (germline match file)", metavar="character"),
+    make_option(c("-o", "--output"), dest="outputFile", type="character", default=NULL, 
+                help="output file name [default= %default]", metavar="character"),
+    make_option(c("-m", "--mask"), dest="ersaMask", type="character", default=NULL, 
+                help="ersa mask [default= %default]", metavar="character"),
+    make_option(c("-v", "--verbose"), dest="verbose",default=FALSE, action="store_true", 
+                help="produce verbose output")
+); 
+
+opt_parser = OptionParser(option_list=option_list)
+args = parse_args(opt_parser)
+
+if (args$help) {
+    print_help(opt_parser)
+    exit(0)
+}
+
+if (args$verbose) {
+	print(args)
+}
+
+if (is.null(args$inputFile) | is.null(args$outputFile)){
+    print_help(opt_parser)
+    stop("Both input file and output file are mandatory.", call.=FALSE)
+}
+
+if (is.null(args$ersaMask) ){
+    print_help(opt_parser)
+    stop("Ersa mask is mandatory.", call.=FALSE)
+}
+
+do.call('maskSegments', args)
+
