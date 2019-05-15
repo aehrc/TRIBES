@@ -1,0 +1,9 @@
+#snakemake
+pandas==0.24.2
+numpy==1.16.3
+scipy==1.2.1
+r-base==3.5.1
+r-optparse
+r-dplyr
+r-rmarkdown
+r-ggplot2
