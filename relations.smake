@@ -2,28 +2,10 @@
 ## Relatetness related rules
 ##
 
-ERSA_SAMPLE="ALS850-OK_BiSnp_QC_EurAF:0.01_LD"
-ERSA_MASK="%s_G1K_GRM_ERCM/ersa.out.msk" % ERSA_SAMPLE
+#
+# Detect IBD segemnts with germline
+#
 
-rule ersa_with_masking:
-    input:
-        segments = [ "{dir}/chr%s.match"%chri for chri in CHRI ],
-        mask =  ERSA_MASK
-    output:
-        "{dir}_ERSA/ersa.out"
-    shell:
-         "module load python/2.7.13 && {BIN_DIR}/ersa --segment_files '{wildcards.dir}/*.match' --mask_region_file {input.mask}"
-         " --output_file {output} --max_meioses 20 --mask_common_shared_regions=true"
-
-rule ersa_create_mask:
-    input:
-        [ "{dir}/chr%s.match"%chri for chri in CHRI ]
-    output:
-        "{dir}_ERCM/ersa.out.msk"
-    shell:
-         "module load python/2.7.13 && {BIN_DIR}/ersa --segment_files {RES_DIR}/empty.match --control_files '{wildcards.dir}/*.match' "
-         " --output_file {wildcards.dir}_ERCM/ersa.out --max_meioses 20 --mask_common_shared_regions=true"
- 
 rule germline:
     input:
         ped="{dir}/{file}.ped", 
@@ -34,6 +16,10 @@ rule germline:
         prefix="{dir}_GRM/{file}"
     shell:
         "{BIN_DIR}/germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m 1.5 -err_het 1 -err_hom 2 -g_extend -w_extend"
+
+#
+# Convert vcf to plinke format.
+#
 
 rule vcf2plink:
     input:
@@ -47,6 +33,9 @@ rule vcf2plink:
     shell:
         "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {REF_DIR}/plink.chrALL.GRCh37.map.gz"
 
+#
+# Filter out polulation IBD segments using ERSA mask
+#
 
 rule FPI_filter_population_ibd:
     input:
@@ -57,6 +46,10 @@ rule FPI_filter_population_ibd:
         "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {REF_DIR}/G1K_EUR-ersa.out.msk"
 
 
+#
+# Estimate pairwise IBD0 and relatedness degree from IBD segments (in germline format)
+#
+
 rule estimateIBD0:
     input:
         "{filename}.match.gz"
@@ -65,6 +58,9 @@ rule estimateIBD0:
     shell:
         "{BIN_DIR}/ibd2degree -v -i {input} -o {output} -m 3.0"
 
+#
+# Compare estimared degree relatedness vs reported (true) one.
+#
 
 rule compare_vs_true_rel:
     input:
