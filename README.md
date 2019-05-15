@@ -16,7 +16,6 @@ Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html
 - Does not matter which python version, I use the one for Python 2.7)
 - Since the quota on $HOME is very small install miniconda in `/flush1/$USER/miniconda2`
 
-	
 	wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 	sh Miniconda2-latest-Linux-x86_64.sh -p /flush1/$USER/miniconda2
 
