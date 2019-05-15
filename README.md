@@ -79,8 +79,8 @@ To generate report comparing the estimated relatendess against the reported rela
 
 The results are in the working dir `/flush3/$USER/TFCeu`:
 
-	- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD.csv` - estimated IBD0 and EstimatedDegree
-	- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD_RVT.html` - comparision agains reported relatedness
+- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD.csv` - estimated IBD0 and EstimatedDegree
+- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD_RVT.html` - comparision agains reported relatedness
 
 
 
