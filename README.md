@@ -14,9 +14,10 @@ non CSIRO environments.
 Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  
 
 - Does not matter which python version, I use the one for Python 2.7)
-- Since the quota on $HOME is very small install miniconda in `/flush1/$USER/miniconda2`
+- Since the quota on $HOME is very small install miniconda in `/flush1/$USER/miniconda2`.
 
-	
+E.g:
+
 	wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 	sh Miniconda2-latest-Linux-x86_64.sh -p /flush1/$USER/miniconda2
 
@@ -33,20 +34,12 @@ Install the required python and R packages:
 
 Perform additional installation steps:
 
-- install snakemake with pip 
-- install tribes.tools R package from sources
+* install snakemake with pip 
+* install tribes.tools R package from sources
 
+E.g:
 
 	pip install snakemake
 	Rscript --vanilla -e "install.packages('R/tribes.tools', repos=NULL)"
 
 Done!
-
-
-
-
-
-
-
-
-
