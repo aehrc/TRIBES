@@ -12,3 +12,7 @@ module load beagle/4.1
 module load germline/1.5.3
 
 SNAKEMAKE="$HOME/.local/bin/snakemake"
+
+# Setup beagle options and remove serial GC set by  _JAVA_OPTIONS
+export BEAGLE_JAVA_OPTS="-Xss5m -Xms8g -Xmx8g -Djava.io.tmpdir=$TMPDIR" 
+unset _JAVA_OPTIONS
