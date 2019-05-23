@@ -1,0 +1,5 @@
+cluster: "sbatch -t {cluster.time} --cpus-per-task {cluster.ncpus}"
+cluster-config: "cluster.yaml"
+jobs: 22
+latency-wait: 40
+

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-./sn  --cluster-config cluster.yaml --cluster "sbatch -t {cluster.time} --cpus-per-task {cluster.ncpus}" --jobs 22 \
- --latency-wait 40 \
- "$@"

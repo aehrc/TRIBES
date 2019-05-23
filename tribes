@@ -1,0 +1,13 @@
+#!/bin/sh
+
+RCFILE="$HOME/.tribesrc"
+
+if [ -e "$RCFILE" ]; then
+    echo "Loading rcfile: '$RCFILE'"
+    source "$RCFILE"
+fi
+
+SNAKEMAKE="${SNAKEMAKE:-snakemake}"
+echo "Runnig with: ${SNAKEMAKE}"
+
+"${SNAKEMAKE}" "$@"
