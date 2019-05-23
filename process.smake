@@ -32,7 +32,7 @@ rule phase_with_ref:
     params:
        prefix="{dir}_RPH/{file}"
     shell:
-        "java -Xmx16g -Xss5m -jar /apps/beagle/4.1/beagle.jar impute=false gt={input} ref={PHASING_REF}/{wildcards.file}.vcf.gz out={params.prefix}"
+        "{BIN_DIR}/beaglew impute=false gt={input} ref={PHASING_REF}/{wildcards.file}.vcf.gz out={params.prefix}"
 
 #
 # Phase WITHOUT Reference Geonme
@@ -46,7 +46,7 @@ rule phase_without_ref:
     params:
        prefix="{dir}_PH/{file}"
     shell:
-        "beagle -Xmx8g -Xss5m impute=false gt={input} out={params.prefix}"
+        "{BIN_DIR}/beaglew impute=false gt={input} out={params.prefix}"
 
 
 #
