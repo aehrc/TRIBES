@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#
+# A wrapper for running beagle
+# The main thing here is that we enable setting  -Xss5m which is a java option recommended
+# by beagle documentation, and prevent failures due the stack overflow
+#
+
+set -e o pipefail
+
+
+# Find original directory of bash script, resovling symlinks
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in/246128#246128
+
+SOURCE=$(which beagle || echo -n)
+if [ -z "$SOURCE" ]; then
+	echo "'beagle' not found on the PATH, exiting." >&2
+	exit 1
+fi
+
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+JAR_DIR=$DIR
+
+JAVA=java
+if [ -e "$JAVA_HOME/bin/java" ]; then
+	JAVA="$JAVA_HOME/bin/java"
+fi
+
+echo $JAR_DIR
+echo $JAVA
