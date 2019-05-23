@@ -43,3 +43,49 @@ E.g:
 	Rscript --vanilla -e "install.packages('R/tribes.tools', repos=NULL)"
 
 Done!
+
+
+
+# Examples
+
+
+## Running examples on pearcey
+
+ssh to one of the pearcey interactive nodes e.g. `pearcey-i1.hpc.csiro.au`.
+
+Activate tribes conda environment (see above:)
+
+	conda activate tribes
+
+Select working directory for the sample dataset e.g. `/flush3/$USER/TFCeu`
+
+Copy the example dataset with configuration from `/flush2/projects/HB_TB_Share/TRIBES/samples/TFCeu` to your working dir.
+
+	cp -r /flush2/projects/HB_TB_Share/TRIBES/samples/TFCeu /flush3/$USER/TFCeu
+
+To run TRIBES (estimate relatedness) locally using 4 CPU cores:
+
+	./sn -d /flush3/$USER/TFCeu --cores 4
+
+To run TRIBES using slurm:
+
+	./sn-cluster -d /flush3/$USER/TFCeu
+
+
+To generate report comparing the estimated relatendess against the reported relations:
+
+	./sn-cluster -d /flush3/$USER/TFCeu estimate_degree_vs_true
+
+
+The results are in the working dir `/flush3/$USER/TFCeu`:
+
+- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD.csv` - estimated IBD0 and EstimatedDegree
+- `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_GRM-allchr_IBD_RVT.html` - comparision agains reported relatedness
+
+
+
+
+
+
+
+
