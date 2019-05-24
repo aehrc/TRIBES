@@ -31,6 +31,7 @@ rule phase_with_ref:
        "{dir}_RPH/{file}.vcf.gz"
     params:
        prefix="{dir}_RPH/{file}"
+    threads: 64
     shell:
         "{BIN_DIR}/beaglew impute=false gt={input} ref={PHASING_REF}/{wildcards.file}.vcf.gz out={params.prefix}"
 
@@ -45,6 +46,7 @@ rule phase_without_ref:
        "{dir}_PH/{file}.vcf.gz"
     params:
        prefix="{dir}_PH/{file}"
+    threads: 64 
     shell:
         "{BIN_DIR}/beaglew impute=false gt={input} out={params.prefix}"
 
