@@ -5,7 +5,11 @@ package:
 source:
   fn: germline-1-5-3.tar.gz
   url: http://gusevlab.org/projects/germline/release/germline-1-5-3.tar.gz
-  
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}  
+
 test:
   commands:
     - germline -h
