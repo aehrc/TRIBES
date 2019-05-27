@@ -1,14 +1,16 @@
 TRIBES
 ======
 
-TBP: General info on TRIBES and snakemake
+TBP: General info on *TRIBES* and snakemake
 
 # Getting started
 
 *TRIBES* requires Linux-64 or MacOS-64 and about 10G of free disk space for software, reference and example data.
 
-Setup tribes using one of the methods described in the [Installation] section 
-(for local setup install with miniconda)
+Setup *TRIBES* using one of the methods described in the [Installation](#installation) section 
+(for a workstation setup use: [Installation with miniconda](#installation-with-miniconda) )
+
+To demonstate how tribes works we will use on of the examples (TFCeu) with reference data from EUR superpopulation (REF-G1K_EUR).
 
 Create  and go to a directory for reference and sample data, e.g `$HOME/tribes-data`
 
@@ -21,12 +23,29 @@ Download and uncompress refecence data (4.3 GB)
 	tar -xzf REF-G1K_EUR.tar.gz 
 	rm REF-G1K_EUR.tar.gz  (optionally)
 
+The reference data is subset of 1000 genomes dataset with unrelated EUR inviduals and it's used in various stages of preprocessing (e.g. LD prunning, phasing or filtering on MAF).
+
 Download and uncompress example data (390 MB)
 
 	wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/TFCeu.tar.gz
 	tar -xzf TFCeu.tar.gz
 	rm TFCeu.tar.gz  (optionally)
 
+The sample data is a synhtetic pedigee created from unrelated CEU individuals. 
+For more info on the dataset see the [Datasets](#datasets) section. Inside the `TFCeu` directory you will find the following files:
+
+- `TF-CEU-15-2.vcf.gz` - the source multisample VCF files
+- `TF-CEU-15-2.true.rel` - the true pariwise relations
+- `g1k_ceu_family_15_2.ped` - pedigee
+- `config.yaml` - the configuration file for *TRIBES* pipeline.  
+
+The `config.yaml` provideds configuration for the pipeline defining the location and name of reference data and the true relations file, as well as the name of the imput file and the preprocessing steps required before IBD/relatedness estimation, e.g.:
+
+	rel_sample: "TF-CEU-15-2_BiSnp_EurAF:0.01_LD"
+
+identifies `TF-CEU-15.vcf.gz` as the input file and applies pre-processing that includes filtering on biallelic SNPs and MAF and LD prunning.
+
+Note: Please not that the IBD estimation requires a phased VCF file. If the input file is not phased pre-processing must include phasing (usually las the last step),  e.g. `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_PH` (to phase without reference) or `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_RPH` (to phase with reference). This is not required in this example becasue the input VCF is phased.
 
 Go to your *TRIBES* installation directory and run *TRIBES* with:
 
@@ -58,9 +77,11 @@ The comparision is presented in the form of a dot chart like this:
 
 ![Dot plot estimated vs true](docs/assets/est_vs_true.png)
 
+Read the secions below to find out how to setup and configure a pipline on your data.
+
 # Installation
 
-TRIBES requires Linug-64 or MacOS-64
+TRIBES requires Linux-64 or MacOS-64
 
 ## Installation with miniconda 
 
@@ -69,25 +90,30 @@ Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  (does n
 	wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 	sh Miniconda2-latest-Linux-x86_64.sh
 
-Relogin to allow the changes in .bash_profile be activated.
+Relogin to allow the changes in `.bash_profile` be activated.
 
 Install dependencies for tribes (requries download of about 500 MB of software packages):
 
 	./setup/install-with-conda.sh
 
 This will create an conda environment named `tribes` and install all required dependencies, 
-as well as create the appropriate TRIBES configuration file at `$HOME/.tribesrc`
+as well as create the appropriate *TRIBES *configuration file at `$HOME/.tribesrc`
+
+To check the installation run:
+
+	./tribes 
+
+This should display amongs others usage info.
 
 ## Manual installation
 
+TBP: Complet dependencies and add reference to the requriements file.
 TRIBES requires 
 
 	dplyr >= 0.8.0.1
 	optparse >= 1.6.1 (1.3.2)
 	rmarkdown >= 1.12 (!)
 	ggplot >= 3.1.1 (2.2.1)
-
-TBP: Complet dependencies and add reference to the requriements file.
 
 ## Cluster setup 
 
@@ -103,9 +129,19 @@ TBP: And reference to CSIRO setup readme (README-CSIRO.md)
 TBP: The list of pipeline stages
 
 # Datasets
+TBP: Add info on datasets (REF and example)
 
-TBD: Add info on datasets (REF and example)
+## Reference
 
+### 1000 Genomes EUR (G1K_EUR)
+
+TBP: Add info on datasets (REF and example)
+
+## Examples
+
+### TrueFamily CEU (TFCeu)
+
+TBP: More info on the dataset
 
 
 
