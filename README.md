@@ -81,7 +81,14 @@ Read the secions below to find out how to setup and configure a pipline on your 
 
 # Installation
 
-TRIBES requires Linux-64 or MacOS-64
+TRIBES requires Linux-64 or MacOS-64.
+
+Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
+and uncompress it to your selected directory.
+
+Alternatively you can clone the (unstable) most recent version from github: 
+
+	git clone https://github.com/aehrc/TRIBES.git
 
 ## Installation with miniconda 
 
@@ -91,6 +98,8 @@ Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  (does n
 	sh Miniconda2-latest-Linux-x86_64.sh
 
 Relogin to allow the changes in `.bash_profile` be activated.
+
+Go to the *TRIBES* instalation directory.
 
 Install dependencies for tribes (requries download of about 500 MB of software packages):
 
