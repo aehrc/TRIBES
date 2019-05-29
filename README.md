@@ -116,17 +116,24 @@ This should display amongs others usage info.
 
 ## Manual installation
 
-TBP: Complet dependencies and add reference to the requriements file.
-TRIBES requires 
+*TRIBES* is implemented as a `snakemake` pipeline and relies a number of bioinformatics tools for processing, such as `bcftools`, `bgzip`, `tabix`, `vcftools`, `germline`, `beagle` as well as a number of `python` an `R` packages.
 
-	dplyr >= 0.8.0.1
-	optparse >= 1.6.1 (1.3.2)
-	rmarkdown >= 1.12 (!)
-	ggplot >= 3.1.1 (2.2.1)
+The complete list of dependencies and their required (minimal) versions can be inferred from the conda environment file at: [setup/environment.yaml](setup/environment.yaml)
+
+They can be installed using the OS specific way (e.g. using `apt` or `yum` on Linxu or `brew` on MacOS)
+
+In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed from souces with:
+
+	Rscript --vanilla -e "install.packages('R/tribes.tools',repos=NULL)"
 
 ## Cluster setup 
 
-TBP: And reference to CSIRO setup readme (README-CSIRO.md)	
+`snakemake` and thus *TRIBES* can run on HPC clusters (for example with `slurm`).
+
+An example setup for CSIRO HPC cluster is descibed in [README-CSIRO.md](README-CSIRO.md) and can be used as a guide 
+to configure *TRIBES* on other clusters. 
+
+For more information on running `snakemake` on HPC clusters please check the `snakemake` documentation.
 
 #Usage
 
@@ -135,7 +142,25 @@ TBP: And reference to CSIRO setup readme (README-CSIRO.md)
 
 ## Pipeline reference
 
-TBP: The list of pipeline stages
+The following steps can used in the pipeline.
+
+Preprocessing:
+
+- `NM`: retain only loci with with non-missing genotypes
+- `BiSnp` : retain only bi-allelic SNPs
+- `BiSnpNM`: combines `BiSnp` and `NM` in a single step
+- `EurAF:<maf-threshold>`: filters for `MAF >= maf-threshold`. MAF is determined form the reference data. E.g.: `EurAF:0.01`
+- `LD`: prune on LD with the reference defined in `` (`bcftools +prune  -l 0.95 -w 1kb`)
+- `QC`: filter on quality (with bcftools: `INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1`)
+- `PH`: phase (using beagle) without reference
+- `RPH`: phasse (using beagle) with reference defined in `ref_sample` config parameter
+
+IBD/Relatedness steps:
+
+- `GRM`: detect pariwise IBD segments using `germline`
+- `FPI`: filter out IBD segments using a mask defined in the reference data.
+- `IBD`: estimate pairwise degree of relatedness based on IBD0
+- `RVT`: report the estimated degreea vs the true ones
 
 # Datasets
 TBP: Add info on datasets (REF and example)
@@ -152,7 +177,11 @@ TBP: Add info on datasets (REF and example)
 
 TBP: More info on the dataset
 
+# Issues and comments
 
+Please report any issues or ideas at: https://github.com/aehrc/TRIBES/issues
+
+Or contact the *TRIBES* team at: TBP
 
 
 
