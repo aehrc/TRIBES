@@ -135,8 +135,6 @@ rule quality_checks:
         "{dir}/{file}.vcf.gz"
     output:
         "{dir}_QC/{file}.vcf.gz"
-    conda:
-        "envs/tri.yaml"
     shell:
         "bcftools view -i 'INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1' -f PASS -Ou {input} | "
         "bcftools annotate -x INFO,FMT -Oz -o {output} -"
