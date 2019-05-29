@@ -137,7 +137,12 @@ For more information on running `snakemake` on HPC clusters please check the `sn
 
 #Usage
 
-## Preparing a custome pipelien
+
+
+
+## Preparing a custome pipeline
+
+
 
 
 ## Pipeline reference
