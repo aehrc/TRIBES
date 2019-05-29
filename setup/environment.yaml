@@ -1,0 +1,36 @@
+
+# Software (conda) requirements for TRIBES pipeline
+#
+# requires channels: bioconda aehrc
+# run with:
+#	conda install --clobber --force -y -f environment.yaml
+#
+channels:
+  - aehrc
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+#python packages
+ - python=3.6.7
+ - pandas=0.24.2
+ - numpy=1.16.3
+ - scipy=1.2.1
+ - pip=19.1
+ - pip:
+   - snakemake==5.4.5
+# R packages
+ - r-base=3.5.1
+ - r-optparse=1.6.1
+ - r-dplyr=0.8.1
+ - r-rmarkdown=1.12
+ - r-ggplot2=3.1.1
+# other tools
+ - pandoc=2.7.2
+# bioconda packages
+ - beagle=4.1_21Jan17.6cc.jar
+ - bcftools=1.9
+ - htslib=1.9
+ - vcftools=0.1.16
+#aehrc packages
+ - germline=1.5.3
