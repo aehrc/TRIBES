@@ -167,12 +167,12 @@ Read the sections below to run *TRIBES* on your own data, with a custom pipeline
 - `filename.true.rel` - true pairwise relations (optional, only if a user has known relations and wants to calculate accuracy of estimated relationships)
 - `config.yaml` - pipeline configuration file defining the location and name of reference data, the true relations file, the input filename and the preprocessing steps required before IBD/relatedness estimation
 
-Refer to files inside example dataset `TFCeu/` directory for correct file format for the input files.
+Refer to files inside example dataset `TFCeu/` directory for correct format for these input files.
 
 ## Preparing a custom pipeline
 
 
-A key strength of *TRIBES* is that is a flexible pipeline, utilizing `snakemake`, to enable the user to specify which pre-processing steps they want to include
+A key strength of *TRIBES* is that is a flexible pipeline, utilizing `snakemake`, to enable the user to specify which pre-processing steps they want to include.
 
 The following steps can used in the pipeline.
 
@@ -197,7 +197,6 @@ The following steps can used in the pipeline.
 # Datasets
 TBP: Add info on datasets (REF and example)
 
-## Reference
 
 ### 1000 Genomes EUR (G1K_EUR)
 
@@ -211,13 +210,13 @@ TBP: More info on the dataset
 
 ### Example 1
 
-For example, a user may wish to identify relationships using an unphased input VCF. They wish to filter on allele frequency of MAF = 0.01, but nothing else, and then phase the data using reference file and estimate relatedness. They would then need to edit the `config.yaml` file from the example data `TFCeu` directory to reflect their input VCF filename and processing steps. Their input VCF file should be in the same `TFCeu` directory, for the `config.yaml` file to work.
+For example, a user may wish to identify relationships using an unphased input VCF. They wish to filter on allele frequency of MAF = 0.01 and then phase the data using reference file and estimate relatedness. They would then need to edit the `config.yaml` file from the example data `TFCeu` directory to reflect their input VCF filename and processing steps. Their input VCF file should be in the same `TFCeu` directory, for the `config.yaml` file to work.
 
 Their `config.yaml` file would look like this:
 
-rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
-ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
-ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
+- rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
+- ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
+- ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
 
@@ -227,14 +226,14 @@ where`estimate_degree` is an alias which calls *TRIBES* to perform the `GRM`, `F
 
 ### Example 2
 
-Alternatively, a user may want to identify novel relationship, as well as confirm known relationships. They wish to pre-process the VCF to filter on MAF, and quality metrics, then phase the data using reference, estimate relationships and compare estimated with known relationships.
+Alternatively, a user may want to identify novel relationship, as well as confirm known relationships. They wish to pre-process the VCF to filter on MAF = 0.01 and quality metrics, then phase the data using reference, estimate relationships and compare estimated with known relationships.
 
 Their `config.yaml` file would look like this:
 
-rel_sample: `filename_BiSnpNM_EurAF:0.01_QC_RPH`  
-ref_dir: `../REF-G1K_EUR`  
-ref_sample: `G1K_SNP_EUR`  
-rel_true: `filename.true.rel` [a reference file containing known relationships,required if step `RVT` is used in the pipeline]
+- rel_sample: `filename_BiSnpNM_EurAF:0.01_QC_RPH`  
+- ref_dir: `../REF-G1K_EUR`  
+- ref_sample: `G1K_SNP_EUR`  
+- rel_true: `filename.true.rel` [a reference file containing known relationships,required if step `RVT` is used in the pipeline]
 
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
