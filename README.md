@@ -69,7 +69,7 @@ Go to your *TRIBES* installation directory and run *TRIBES* with:
 
 	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
-Where `no_cpu_cores` is the number of CPU core to use. `estimate_degree_vs_true` calls tribes to perform all relatedness estimation steps described in `IBD/Relatedness steps:` described under [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
+Where `no_cpu_cores` is the number of CPU cores to use. `estimate_degree_vs_true` calls *TRIBES* to perform all relatedness estimation steps described in `IBD/Relatedness steps:` under [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
 It takes about 20 minutes to to run the entire pipeline using 4 cores.
 
@@ -163,9 +163,11 @@ Read the sections below to run *TRIBES* on your own data, with a custom pipeline
 
 *TRIBES* requires the following input files:
 
-- `filename.vcf.gz` - the source multi-sample VCF file  
-- `filename.true.rel` - the true pairwise relations (optional, only if a user has known relations and wants to calculate accuracy of estimated relationships)
+- `filename.vcf.gz` - multi-sample VCF file containing sample genotypes 
+- `filename.true.rel` - true pairwise relations (optional, only if a user has known relations and wants to calculate accuracy of estimated relationships)
 - `config.yaml` - pipeline configuration file defining the location and name of reference data, the true relations file, the input filename and the preprocessing steps required before IBD/relatedness estimation
+
+Refer to files inside example dataset `TFCeu/` directory for correct file format for the input files.
 
 ## Preparing a custom pipeline
 
@@ -200,6 +202,10 @@ TBP: Add info on datasets (REF and example)
 ### 1000 Genomes EUR (G1K_EUR)
 
 TBP: Add info on datasets (REF and example)
+
+### TrueFamily CEU (TFCeu)
+
+TBP: More info on the dataset
 
 ## Examples
 
@@ -238,9 +244,7 @@ The user would then run *TRIBES* from the installation directory as in the [Gett
 If users provide a `rel_true:` file in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
 
-### TrueFamily CEU (TFCeu)
 
-TBP: More info on the dataset
 
 # Issues and comments
 
