@@ -216,7 +216,7 @@ Their `config.yaml` file would look like this:
 
 - rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
 - ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
-- ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
+- ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering on MAF and LD, phasing and masking steps] 
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
 
@@ -238,7 +238,7 @@ Their `config.yaml` file would look like this:
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
 
-	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree
+	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
 If users provide a `rel_true:` file in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
