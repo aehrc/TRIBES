@@ -1,18 +1,31 @@
 TRIBES
 ======
+TRIBES is a user-friendly platform for relatedness detection in genomic data. *TRIBES* is the first tool which is both accurate (up to 7th degree) and combines essential data processing steps in a single platform. 
 
-TBP: General info on *TRIBES* and snakemake
+Accurately classifying the degree of relatedness between pairs of individuals has multiple important applications, including disease gene discovery, removal of confounding relatives in genome wide association studies (GWAS) and family planning. Currently no tools are available which are accurate beyond 3rd degree and combine the necessary data processing steps for accuracy and ease of use. To address this we have developed ‘TRIBES’, a user-friendly platform which leverages the GERMLINE algorithm to accurately identify distant relatives. TRIBES enables user-guided data pruning, phasing of genomes, IBD segment recovery, masking of artefactual IBD segments and finally relationship estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool which enables flexibility and reproducibility. 
+
+We demonstrate the accuracy of *TRIBES* in our publications [insert TRIBES] and [insert SOD1]
+
+Briefly, Input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps: The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
+1) The VCF is filtered using quality metrics contained within the VCF file.  
+2) The resultant VCF is then phased using BEAGLE.
+3) IBD Segments are then estimated using GERMLINE.
+4) Artefactual IBD is masked using a reference file and adjusting segment endpoints. 
+5) Adjusted IBD Segments are then summed to estimate relationships. 
+
 
 # Getting started
+
+This section describes analysis of example data. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards
 
 *TRIBES* requires Linux-64 or MacOS-64 and about 10G of free disk space for software, reference and example data.
 
 Setup *TRIBES* using one of the methods described in the [Installation](#installation) section 
 (for a workstation setup use: [Installation with miniconda](#installation-with-miniconda) )
 
-To demonstate how tribes works we will use on of the examples (TFCeu) with reference data from EUR superpopulation (REF-G1K_EUR).
+To demonstate how *TRIBES* works we will use an example dataset (TFCeu) with reference data from 1000 Genomes 'EUR' superpopulation (REF-G1K_EUR).
 
-Create  and go to a directory for reference and sample data, e.g `$HOME/tribes-data`
+Create and navigate to a directory for reference and sample data, e.g `$HOME/tribes-data`
 
 	mkdir -p $HOME/tribes-data
 	cd $HOME/tribes-data
@@ -23,7 +36,7 @@ Download and uncompress refecence data (4.3 GB)
 	tar -xzf REF-G1K_EUR.tar.gz 
 	rm REF-G1K_EUR.tar.gz  (optionally)
 
-The reference data is subset of 1000 genomes dataset with unrelated EUR inviduals and it's used in various stages of preprocessing (e.g. LD prunning, phasing or filtering on MAF).
+The reference data is subset of 1000 genomes dataset with unrelated 'EUR' inviduals and it's used in various stages of preprocessing (e.g. LD pruning, phasing and filtering on MAF).
 
 Download and uncompress example data (390 MB)
 
@@ -31,27 +44,27 @@ Download and uncompress example data (390 MB)
 	tar -xzf TFCeu.tar.gz
 	rm TFCeu.tar.gz  (optionally)
 
-The sample data is a synhtetic pedigee created from unrelated CEU individuals. 
+The sample data is a synthetic pedigee created from unrelated 1000 Genomes 'CEU' individuals. 
 For more info on the dataset see the [Datasets](#datasets) section. Inside the `TFCeu` directory you will find the following files:
 
 - `TF-CEU-15-2.vcf.gz` - the source multisample VCF files
 - `TF-CEU-15-2.true.rel` - the true pariwise relations
 - `g1k_ceu_family_15_2.ped` - pedigee
-- `config.yaml` - the configuration file for *TRIBES* pipeline.  
+- `config.yaml` - the configuration file describing the steps taken in *TRIBES* pipeline.  
 
-The `config.yaml` provideds configuration for the pipeline defining the location and name of reference data and the true relations file, as well as the name of the imput file and the preprocessing steps required before IBD/relatedness estimation, e.g.:
+The `config.yaml` provides configuration for the pipeline defining the location and name of reference data and the true relations file, as well as the name of the imput file and the preprocessing steps required before IBD/relatedness estimation, e.g.:
 
 	rel_sample: "TF-CEU-15-2_BiSnp_EurAF:0.01_LD"
 
-identifies `TF-CEU-15.vcf.gz` as the input file and applies pre-processing that includes filtering on biallelic SNPs and MAF and LD prunning.
+identifies `TF-CEU-15.vcf.gz` as the input file and applies 3 pre-processing steps: filtering on biallelic SNPs and MAF plus LD pruning. All steps that can be used in *TRIBES* pipeline are described below in [Preparing a custom pipeline](#Preparing a custom pipeline)
 
-Note: Please not that the IBD estimation requires a phased VCF file. If the input file is not phased pre-processing must include phasing (usually las the last step),  e.g. `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_PH` (to phase without reference) or `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_RPH` (to phase with reference). This is not required in this example becasue the input VCF is phased.
+Note: Please note that the IBD estimation requires a phased VCF file. If the input file is not phased, pre-processing must include phasing (usually last the last step, after filtering),  e.g. `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_PH` (where 'PH' in the file name indicates to phase without reference) or `TF-CEU-15-2_BiSnp_EurAF:0.01_LD_RPH` (with 'RPH' in the filename indicates to phase with reference). This is not required in this example becasue the input VCF is phased.
 
 Go to your *TRIBES* installation directory and run *TRIBES* with:
 
 	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
-Where `no_cpu_cores` is the number of CPU core to use.
+Where `no_cpu_cores` is the number of CPU core to use. `estimate_degree_vs_true` calls tribes to perform masking using a reference, relationship estimation from IBD Segments AND compare to known relationships for accuracy.
 
 It takes about 20 minutes to to run the entire pipeline using 4 cores.
 
@@ -77,7 +90,7 @@ The comparision is presented in the form of a dot chart like this:
 
 ![Dot plot estimated vs true](docs/assets/est_vs_true.png)
 
-Read the secions below to find out how to setup and configure a pipline on your data.
+## Read the sections below to find out how to setup and configure a pipline on your data.
 
 # Installation
 
@@ -90,7 +103,9 @@ Alternatively you can clone the (unstable) most recent version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
 
-## Installation with miniconda 
+## Installation of dependancies with miniconda 
+
+For *TRIBES* to run, it is essential to install software tools which *TRIBES* uses during the analysis pipeline. We use package and environment manager, Miniconda for this.
 
 Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  (does not matter which python version, I use the one for Python 2.7):
 
@@ -122,7 +137,7 @@ The complete list of dependencies and their required (minimal) versions can be i
 
 They can be installed using the OS specific way (e.g. using `apt` or `yum` on Linxu or `brew` on MacOS)
 
-In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed from souces with:
+In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed from sources with:
 
 	Rscript --vanilla -e "install.packages('R/tribes.tools',repos=NULL)"
 
@@ -133,19 +148,23 @@ In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed
 An example setup for CSIRO HPC cluster is descibed in [README-CSIRO.md](README-CSIRO.md) and can be used as a guide 
 to configure *TRIBES* on other clusters. 
 
-For more information on running `snakemake` on HPC clusters please check the `snakemake` documentation.
+For more information on running `snakemake` on HPC clusters please check the `snakemake` documentation https://snakemake.readthedocs.io/en/stable/
 
-#Usage
-
-
+# Usage
 
 
-## Preparing a custome pipeline
+## Input data 
+
+*TRIBES* requires the following input files
+
+- `filename.vcf.gz` - the source multisample VCF files in gz format 
+- `filename.true.rel` - the true pairwise relations (optional, only if a user has known relations and wants to calculate accuracy of estimated relationships)
+- `config.yaml` - pipeline configuration file defining the location and name of reference data, the true relations file, the input filename and the preprocessing steps required before IBD/relatedness estimation
+
+## Preparing a custom pipeline
 
 
-
-
-## Pipeline reference
+A key strength of *TRIBES* is that is a flexible pipeline, utilizing `snakemake`, to enable the user to specify which processing steps they want to include
 
 The following steps can used in the pipeline.
 
@@ -166,6 +185,24 @@ IBD/Relatedness steps:
 - `FPI`: filter out IBD segments using a mask defined in the reference data.
 - `IBD`: estimate pairwise degree of relatedness based on IBD0
 - `RVT`: report the estimated degreea vs the true ones
+
+
+For example, a user may wish to identify relationships using an unphased input VCF of all sample genotypes. They wish to filter on allele frequency of MAF = 0.01, but nothing else, and then phase the data and estimate relatedness. They would then need to edit the `config.yaml` file from the example data `TFCeu` directory to reflect their input VCF filename and processing steps. Their input VCF file should be in the same `TFCeu` directory, for the `config.yaml` file to work.
+
+`config.yaml` 
+
+rel_sample: "filename_BiSnpNM_EurAF:0.01"  [where filename refers to the input VCF filename `filename.vcf.gz`]
+ref_dir: "../REF-G1K_EUR"  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
+ref_sample: "G1K_SNP_EUR"  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
+rel_true: "TF-CEU-15-2.true.rel" [optional: a reference file used to compare true versus estimated degree in `RVT` pipeline step]
+
+The user would then run *TRIBES* from the installation directory as in the [Getting started]#Getting started section
+
+./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree
+
+where`estimate_degree` is a shortcut (alias) which calls *TRIBES* to perform the `GRM`, `FPI` and `IBD` steps described under 'IBD/Relatedness steps'
+
+If users provide a rel_true (true relatives file) in the `config_yaml` file where they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps'
 
 # Datasets
 TBP: Add info on datasets (REF and example)
