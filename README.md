@@ -6,12 +6,14 @@ Accurately classifying the degree of relatedness between pairs of individuals ha
 
 We demonstrate the accuracy of *TRIBES* in our publications [insert TRIBES] and [insert SOD1]
 
-Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps: The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
+Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps: 
 1) The VCF is filtered using quality metrics contained within the VCF file.  
 2) The resultant VCF is then phased using BEAGLE.
 3) IBD Segments are then estimated using GERMLINE.
 4) Artefactual IBD is masked using a reference file by adjusting segment endpoints. 
 5) Adjusted IBD Segments are then summed to estimate relationships. 
+
+The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
 
 ## Learn more
 Watch a short video introducing *TRIBES* and its applications
@@ -155,7 +157,7 @@ For more information on running `snakemake` on HPC clusters please check the `sn
 
 # Usage
 
-## Read the sections below to run *TRIBES* on your own data, with a custom pipeline
+Read the sections below to run *TRIBES* on your own data, with a custom pipeline
 
 ## Input data 
 
@@ -177,7 +179,7 @@ The following steps can used in the pipeline.
 - `NM`: retain only loci with with non-missing genotypes
 - `BiSnp` : retain only bi-allelic SNPs
 - `BiSnpNM`: combines `BiSnp` and `NM` in a single step
-- `EurAF:<maf-threshold>`: filters for `MAF >= maf-threshold`. MAF is determined form the reference data. E.g.: `EurAF:0.01`
+- `EurAF:<maf-threshold>`: filters for `MAF >= maf-threshold`. MAF is determined from the reference data. E.g.: `EurAF:0.01`
 - `LD`: prune on LD with the reference defined in `G1K_SNP_EUR` (`bcftools +prune  -l 0.95 -w 1kb`)
 - `QC`: filter on quality (with bcftools: `INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1`)
 - `PH`: phase (using beagle) without reference
@@ -201,22 +203,39 @@ TBP: Add info on datasets (REF and example)
 
 ## Examples
 
+### Example 1
+
 For example, a user may wish to identify relationships using an unphased input VCF. They wish to filter on allele frequency of MAF = 0.01, but nothing else, and then phase the data using reference file and estimate relatedness. They would then need to edit the `config.yaml` file from the example data `TFCeu` directory to reflect their input VCF filename and processing steps. Their input VCF file should be in the same `TFCeu` directory, for the `config.yaml` file to work.
 
 Their `config.yaml` file would look like this:
 
-	rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
-	ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
-	ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
-	rel_true: `TF-CEU-15-2.true.rel` [optional: a reference file used to compare true versus estimated degree in `RVT` pipeline step]
+rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
+ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
+ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering, on MAF, LD, phasing and masking steps] 
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
 
-./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree
+	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree
 
-where`estimate_degree` is a shortcut (alias) which calls *TRIBES* to perform the `GRM`, `FPI` and `IBD` steps described under 'IBD/Relatedness steps'
+where`estimate_degree` is an alias which calls *TRIBES* to perform the `GRM`, `FPI` and `IBD` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
-If users provide a `rel_true:` file (true relatives file) in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
+### Example 2
+
+Alternatively, a user may want to identify novel relationship, as well as confirm known relationships. They wish to pre-process the VCF to filter on MAF, and quality metrics, then phase the data using reference, estimate relationships and compare estimated with known relationships.
+
+Their `config.yaml` file would look like this:
+
+rel_sample: `filename_BiSnpNM_EurAF:0.01_QC_RPH`  
+ref_dir: `../REF-G1K_EUR`  
+ref_sample: `G1K_SNP_EUR`  
+rel_true: `filename.true.rel` [a reference file containing known relationships,required if step `RVT` is used in the pipeline]
+
+
+The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
+
+	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree
+
+If users provide a `rel_true:` file in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
 
 ### TrueFamily CEU (TFCeu)
