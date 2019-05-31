@@ -194,19 +194,7 @@ The following steps can used in the pipeline.
 - `IBD`: estimate pairwise degree of relatedness based on IBD0
 - `RVT`: compare the estimated degree to the known degree, reflecting accuracy
 
-# Datasets
-TBP: Add info on datasets (REF and example)
-
-
-### 1000 Genomes EUR (G1K_EUR)
-
-TBP: Add info on datasets (REF and example)
-
-### TrueFamily CEU (TFCeu)
-
-TBP: More info on the dataset
-
-## Examples
+# Examples
 
 ### Example 1
 
@@ -242,7 +230,17 @@ The user would then run *TRIBES* from the installation directory as in the [Gett
 
 If users provide a `rel_true:` file in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
+# Datasets
+TBP: Add info on datasets (REF and example)
 
+
+### 1000 Genomes EUR (G1K_EUR)
+
+TBP: Add info on datasets (REF and example)
+
+### TrueFamily CEU (TFCeu)
+
+TBP: More info on the dataset
 
 
 # Issues and comments
