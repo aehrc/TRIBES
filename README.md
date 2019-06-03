@@ -1,31 +1,32 @@
 TRIBES
 ======
-*TRIBES* is a user-friendly platform for relatedness detection in genomic data. *TRIBES* is the first tool which is both accurate (up to 7th degree) and combines essential data processing steps in a single platform. 
+*TRIBES* is a user-friendly platform for relatedness detection in genomic data. *TRIBES* is the first tool which is both accurate (up to 7th degree) and combines essential data processing steps in a single platform.
 
-Accurately classifying the degree of relatedness between pairs of individuals has multiple important applications, including disease gene discovery, removal of confounding relatives in genome wide association studies (GWAS) and family planning. Currently no tools are available which are accurate beyond 3rd degree and combine the necessary data processing steps for accuracy and ease of use. To address this we have developed ‘TRIBES’, a user-friendly platform which leverages the GERMLINE algorithm to accurately identify distant relatives. TRIBES enables user-guided data pruning, phasing of genomes, IBD segment recovery, masking of artefactual IBD segments and finally relationship estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool which enables flexibility and reproducibility. 
+Accurately classifying the degree of relatedness between pairs of individuals has multiple important applications, including disease gene discovery, removal of confounding relatives in genome wide association studies (GWAS) and family planning. Currently no tools are available which are accurate beyond 3rd degree and combine the necessary data processing steps for accuracy and ease of use. To address this we have developed ‘TRIBES’, a user-friendly platform which leverages the GERMLINE algorithm to accurately identify distant relatives. TRIBES enables user-guided data pruning, phasing of genomes, IBD segment recovery, masking of artefactual IBD segments and finally relationship estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool which enables flexibility and reproducibility.
 
 We demonstrate the accuracy of *TRIBES* in our publications [insert TRIBES] and [insert SOD1]
 
-Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps: 
+Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps:
 1) The VCF is filtered using quality metrics contained within the VCF file.  
 2) The resultant VCF is then phased using BEAGLE.
 3) IBD Segments are then estimated using GERMLINE.
-4) Artefactual IBD is masked using a reference file by adjusting segment endpoints. 
-5) Adjusted IBD Segments are then summed to estimate relationships. 
+4) Artefactual IBD is masked using a reference file by adjusting segment endpoints.
+5) Adjusted IBD Segments are then summed to estimate relationships.
+6) TRIBES returns a result file.
 
 The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
 
 ## Learn more
 Watch a short video introducing *TRIBES* and its applications
-https://www.thinkable.org/submission_entries/l3jw6v8G
+[![TRIBES video](docs/assets/tribes_video.jpg)](https://www.thinkable.org/submission_entries/l3jw6v8G)
 
 # Getting started
 
-This section describes analysis of example data. We advise that you run the example data first, to confirm you have installed  *TRIBES* correctly. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards.
+This section describes the analysis of an example data. We advise that you run the example data first, to confirm you have installed  *TRIBES* correctly. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards.
 
 *TRIBES* requires Linux-64 or MacOS-64 and about 10GB of free disk space for software, reference and example data.
 
-Setup *TRIBES* using one of the methods described in the [Installation](#installation) section 
+Setup *TRIBES* using one of the methods described in the [Installation](#installation) section
 (for a workstation setup use: [Installation for workstation use with miniconda](#installation-for-workstation-use-with-miniconda) )
 
 To demonstate how *TRIBES* works we will use an example dataset (TFCeu) with reference data from 1000 Genomes 'EUR' superpopulation (REF-G1K_EUR).
@@ -35,10 +36,10 @@ Create and navigate to a directory for reference and sample data, e.g `$HOME/tri
 	mkdir -p $HOME/tribes-data
 	cd $HOME/tribes-data
 
-Download and uncompress refecence data (4.3 GB) 
+Download and uncompress refecence data (4.3 GB)
 
 	wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/reference/1.0/REF-G1K_EUR.tar.gz
-	tar -xzf REF-G1K_EUR.tar.gz 
+	tar -xzf REF-G1K_EUR.tar.gz
 	rm REF-G1K_EUR.tar.gz  (optionally)
 
 The reference data is subset of 1000 genomes dataset with unrelated 'EUR' inviduals and it's used in various stages of preprocessing (e.g. LD pruning, phasing and filtering on MAF).
@@ -49,7 +50,7 @@ Download and uncompress example data (390 MB)
 	tar -xzf TFCeu.tar.gz
 	rm TFCeu.tar.gz  (optionally)
 
-The sample data is a synthetic pedigee created from unrelated 1000 Genomes 'CEU' individuals. 
+The sample data is a synthetic pedigee created from unrelated 1000 Genomes 'CEU' individuals.
 For more info on the dataset see the [Datasets](#datasets) section. Inside the `TFCeu` directory you will find the following files:
 
 - `TF-CEU-15-2.vcf.gz` - the source multisample VCF files
@@ -103,11 +104,11 @@ TRIBES requires Linux-64 or MacOS-64.
 Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
 and uncompress it to your selected directory.
 
-Alternatively you can clone the (unstable) most recent version from github: 
+Alternatively you can clone the (unstable) most recent version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
 
-## Installation for workstation use with miniconda 
+## Installation for workstation use with miniconda
 
 For *TRIBES* to run, it is essential to install dependancies which *TRIBES* uses during the analysis pipeline. We use package and environment manager, Miniconda for this.
 
@@ -124,12 +125,12 @@ Install dependencies for tribes (requries download of about 500 MB of software p
 
 	./setup/install-with-conda.sh
 
-This will create an conda environment named `tribes` and install all required dependencies, 
+This will create an conda environment named `tribes` and install all required dependencies,
 as well as create the appropriate *TRIBES *configuration file at `$HOME/.tribesrc`
 
 To check the installation run:
 
-	./tribes 
+	./tribes
 
 This should display amongs others usage info.
 
@@ -145,12 +146,12 @@ In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed
 
 	Rscript --vanilla -e "install.packages('R/tribes.tools',repos=NULL)"
 
-## Cluster setup 
+## Cluster setup
 
 `snakemake` and thus *TRIBES* can run on HPC clusters (for example with `slurm`).
 
-An example setup for CSIRO HPC cluster is descibed in [README-CSIRO.md](README-CSIRO.md) and can be used as a guide 
-to configure *TRIBES* on other clusters. 
+An example setup for CSIRO HPC cluster is descibed in [README-CSIRO.md](README-CSIRO.md) and can be used as a guide
+to configure *TRIBES* on other clusters.
 
 For more information on running `snakemake` on HPC clusters please check the `snakemake` documentation https://snakemake.readthedocs.io/en/stable/
 
@@ -159,11 +160,11 @@ For more information on running `snakemake` on HPC clusters please check the `sn
 
 Read the sections below to run *TRIBES* on your own data, with a custom pipeline
 
-## Input data 
+## Input data
 
 *TRIBES* requires the following input files:
 
-- `filename.vcf.gz` - multi-sample VCF file containing sample genotypes 
+- `filename.vcf.gz` - multi-sample VCF file containing sample genotypes
 - `filename.true.rel` - true pairwise relations (optional, only if a user has known relations and wants to calculate accuracy of estimated relationships)
 - `config.yaml` - pipeline configuration file defining the location and name of reference data, the true relations file, the input filename and the preprocessing steps required before IBD/relatedness estimation
 
@@ -204,7 +205,7 @@ Their `config.yaml` file would look like this:
 
 - rel_sample: `filename_BiSnpNM_EurAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
 - ref_dir: `../REF-G1K_EUR`  [where ref_dir is the location of the reference directory, which hosts the reference 'EUR' cohort]
-- ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering on MAF and LD, phasing and masking steps] 
+- ref_sample: `G1K_SNP_EUR`  [reference cohort name, used for filtering on MAF and LD, phasing and masking steps]
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
 
@@ -248,17 +249,3 @@ TBP: More info on the dataset
 Please report any issues or ideas at: https://github.com/aehrc/TRIBES/issues
 
 Or contact the *TRIBES* team at: TBP
-
-
-
-
-
-
-
-
-
-
-
-
-
-
