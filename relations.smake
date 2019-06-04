@@ -29,9 +29,10 @@ rule vcf2plink:
          "{dir}/{file}.ped",
          "{dir}/{file}_interpolated.map"
     params:
-        prefix="{dir}/{file}"
+        prefix="{dir}/{file}",
+        gentic_map=ref_path('plink.chrALL.GRCh37.map.gz')
     shell:
-        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {REF_DIR}/plink.chrALL.GRCh37.map.gz"
+        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {params.gentic_map}"
 
 #
 # Filter out polulation IBD segments using ERSA mask
@@ -42,8 +43,10 @@ rule FPI_filter_population_ibd:
         "{filename}.match.gz"
     output:
         "{filename}_FPI.match.gz"
+    params:
+        ersa_mask=ref_path('ersa-mask.tsv')
     shell:
-        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {REF_DIR}/G1K_EUR-ersa.out.msk"
+        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask}"
 
 
 #

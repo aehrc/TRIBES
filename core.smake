@@ -16,6 +16,10 @@ def ref_path(filename):
   return os.path.join(REF_DIR, filename)
 
 
+def config_ref_path(config_key):
+  return ref_path(config[config_key])
+
+
 # List of chromosomes
 
 DEF_CHRI=[ str(i) for i in range(1,23)]
