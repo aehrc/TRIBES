@@ -230,20 +230,42 @@ The user would then run *TRIBES* from the installation directory as in the [Gett
 If users provide a `rel_true:` file in the `config_yaml` file, they can call `estimate_degree_vs_true` which is an alias that calls *TRIBES* to perform the `GRM`, `FPI`, `IBD` and `RVT` steps described under 'IBD/Relatedness steps' in [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
 # Datasets
-TBP: Add info on datasets (REF and example)
 
+### 1000 Genomes EUR (REF_G1K-EUR_0.001)
 
-### 1000 Genomes EUR (G1K_EUR)
+Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/reference/1.0/REF_G1K-EUR_0.001.tar.gz
 
-TBP: Add info on datasets (REF and example)
+This is a reference dataset used for MAF filterting, LD prunning and phasing.
+It's based on the data from release 3 of [1000 Genomes Project][g1k].
+It includes all bi-allelics SNPs with `MAF > 0.001` for unrelarted invidiuals from EUR superpopulation.
+
+- `VCF` : genotypes (split by chromosome)
+- `sample.txt` : list of included EUR samples
+- `ersa-mask.tsv`: list of regions with excessive IBD (generated with [ersa][ersa] for this sample)
+- `plink.chrALL.GRCh37.map.gz`:  genetic map (not depenant to the samples but included for convenience)
 
 ### TrueFamily CEU (TFCeu)
 
-TBP: More info on the dataset
+Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/TFCeu.tar.gz
 
+This is synthetic dataset with simulated genotypes based on unrelated individuals from CEU population of [1000 Genomes Project][g1k].
+The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations of offspring.
+There are two children in each generation, one of which mates in the subsquent generation.
+
+- `TF-CEU-15-2.vcf.gz` : VFC file for the simulated genotypes
+- `g1k_ceu_family_15_2.ped`: pedigree
+- `TF-CEU-15-2.true.rel` : true relations
 
 # Issues and comments
 
 Please report any issues or ideas at: https://github.com/aehrc/TRIBES/issues
 
 Or contact the *TRIBES* team at: TBP
+
+
+[//]: # (Links)
+[g1k]: http://www.internationalgenome.org/ "1000 Genomes Project"
+[ersa]: http://www.hufflab.org/software/ersa/ "ERSA"
+
+
+
