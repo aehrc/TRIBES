@@ -12,7 +12,7 @@ Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *
 3) IBD Segments are then estimated using GERMLINE.
 4) Artefactual IBD is masked using a reference file by adjusting segment endpoints.
 5) Adjusted IBD Segments are then summed to estimate relationships.
-6) TRIBES returns a result file.
+6) *TRIBES* returns result files, including `.csv` of estimated relationships.
 
 The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
 
@@ -22,13 +22,14 @@ Watch a short video introducing *TRIBES* and its applications
 
 # Getting started
 
-This section describes the analysis of an example data. We advise that you run the example data first, to confirm you have installed  *TRIBES* correctly. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards.
+This section describes the analysis of an example dataset. We advise that you run *TRIBES* on the example data first, to confirm you have installed  *TRIBES* correctly. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards.
 
 *TRIBES* requires Linux-64 or MacOS-64 and about 10GB of free disk space for software, reference and example data.
 
-Setup *TRIBES* using one of the methods described in the [Installation](#installation) section
-(for a workstation setup use: [Installation for workstation use with miniconda](#installation-for-workstation-use-with-miniconda) )
+Install *TRIBES* using one of the methods described in the [Installation](#installation) section
+(for a workstation setup use: [Installation for workstation use](#installation-for-workstation-use) ). After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
 
+## Testing installation on example dataset
 To demonstate how *TRIBES* works we will use an example dataset (TFCeu) with reference data from 1000 Genomes 'EUR' superpopulation (REF-G1K_EUR).
 
 Create and navigate to a directory for reference and sample data, e.g `$HOME/tribes-data`
@@ -74,6 +75,7 @@ Where `no_cpu_cores` is the number of CPU cores to use. `estimate_degree_vs_true
 
 It takes about 20 minutes to to run the entire pipeline using 4 cores.
 
+## TRIBES output for example dataset
 Upon the sucessful completion, you can find the final and intermediate stages of the pipeline in `$HOME/tribes-data/TFCeu/` (~2.3GB).
 In particular:
 
@@ -99,6 +101,8 @@ The comparision is presented in the form of a dot chart like this:
 
 # Installation
 
+## Installation for workstation use 
+
 TRIBES requires Linux-64 or MacOS-64.
 
 Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
@@ -108,7 +112,7 @@ Alternatively you can clone the (unstable) most recent version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
 
-## Installation for workstation use with miniconda
+### Installation of dependancies with miniconda
 
 For *TRIBES* to run, it is essential to install dependancies which *TRIBES* uses during the analysis pipeline. We use package and environment manager, Miniconda for this.
 
@@ -146,7 +150,7 @@ In addition *TRIBES* requires `tribes.tools` `R` packages which can be installed
 
 	Rscript --vanilla -e "install.packages('R/tribes.tools',repos=NULL)"
 
-## Cluster setup
+## Installation on HPC Cluster 
 
 `snakemake` and thus *TRIBES* can run on HPC clusters (for example with `slurm`).
 
@@ -235,22 +239,21 @@ If users provide a `rel_true:` file in the `config_yaml` file, they can call `es
 
 Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/reference/1.0/REF_G1K-EUR_0.001.tar.gz
 
-This is a reference dataset used for MAF filterting, LD prunning and phasing.
+This is a reference dataset used for MAF filtering, LD pruning and phasing.
 It's based on the data from release 3 of [1000 Genomes Project][g1k].
-It includes all bi-allelics SNPs with `MAF > 0.001` for unrelarted invidiuals from EUR superpopulation.
+It includes all biallelic SNPs with `MAF > 0.001` for unrelated invidiuals from 'EUR' superpopulation.
 
-- `VCF` : genotypes (split by chromosome)
+- `VCF` : all sample genotypes (separate file per chromosome)
 - `sample.txt` : list of included EUR samples
 - `ersa-mask.tsv`: list of regions with excessive IBD (generated with [ersa][ersa] for this sample)
-- `plink.chrALL.GRCh37.map.gz`:  genetic map (not depenant to the samples but included for convenience)
+- `plink.chrALL.GRCh37.map.gz`:  genetic map (included for convenience)
 
 ### TrueFamily CEU (TFCeu)
 
 Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/TFCeu.tar.gz
 
 This is synthetic dataset with simulated genotypes based on unrelated individuals from CEU population of [1000 Genomes Project][g1k].
-The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations of offspring.
-There are two children in each generation, one of which mates in the subsquent generation.
+The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations.
 
 - `TF-CEU-15-2.vcf.gz` : VFC file for the simulated genotypes
 - `g1k_ceu_family_15_2.ped`: pedigree
