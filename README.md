@@ -27,7 +27,7 @@ This section describes the analysis of an example dataset. We advise that you ru
 *TRIBES* requires Linux-64 or MacOS-64 and about 10GB of free disk space for software, reference and example data.
 
 Install *TRIBES* using one of the methods described in the [Installation](#installation) section
-(for a workstation setup use: [Installation for workstation use](#installation-for-workstation-use) ). After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
+After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
 
 ## Testing installation on example dataset
 To demonstate how *TRIBES* works we will use an example dataset (TFCeu) with reference data from 1000 Genomes 'EUR' superpopulation (REF-G1K_EUR).
@@ -137,6 +137,8 @@ To check the installation run:
 	./tribes
 
 This should display amongs others usage info.
+
+After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
 
 ## Manual installation
 
