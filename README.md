@@ -27,7 +27,7 @@ This section describes the analysis of an example dataset. We advise that you ru
 *TRIBES* requires Linux-64 or MacOS-64 and about 10GB of free disk space for software, reference and example data.
 
 Install *TRIBES* using one of the methods described in the [Installation](#installation) section
-(for a workstation setup use: [Installation for workstation use](#installation-for-workstation-use) ). After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
+After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
 
 ## Testing installation on example dataset
 To demonstate how *TRIBES* works we will use an example dataset (TFCeu) with reference data from 1000 Genomes 'EUR' superpopulation (REF-G1K_EUR).
@@ -99,33 +99,44 @@ The comparision is presented in the form of a dot chart like this:
 ![Dot plot estimated vs true](docs/assets/est_vs_true.png)
 
 
-# Installation
+## Installation for workstation use
 
-## Installation for workstation use 
+*TRIBES* requires a 64-bit version of Linux, MacOS or Windows 10.
 
-TRIBES requires Linux-64 or MacOS-64.
+### Windows Subsystem for Linux (WSL)
 
+To run *TRIBES* on Windows 10, install Ubuntu from the Microsoft Store.
+
+	https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6
+	
+Then open the Ubuntu app from the Start menu.
+
+### Miniconda
+
+*TRIBES* has a list of dependencies required to be installed prior to running the analysis pipeline. For this, we use ![Miniconda](https://docs.conda.io/en/latest/miniconda.html).
+
+Install `miniconda` (3.7 or 2.7) from https://docs.conda.io/en/latest/miniconda.html:
+
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	sh Miniconda3-latest-Linux-x86_64.sh
+	
+###  Download *TRIBES*
+	
 Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
-and uncompress it to your selected directory.
+and extract it to your selected directory.
 
-Alternatively you can clone the (unstable) most recent version from github:
+    wget https://github.com/aehrc/TRIBES/archive/v0.1.tar.gz
+	tar -xvf v0.1.tar.gz
+
+Alternatively you can clone the most recent (unstable) version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
 
-### Installation of dependancies with miniconda
+### Installing *TRIBES*
 
-For *TRIBES* to run, it is essential to install dependancies which *TRIBES* uses during the analysis pipeline. We use package and environment manager, Miniconda for this.
+Go to the *TRIBES* installation directory.
 
-Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  (does not matter which python version, I use the one for Python 2.7):
-
-	wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
-	sh Miniconda2-latest-Linux-x86_64.sh
-
-Relogin to allow the changes in `.bash_profile` be activated.
-
-Go to the *TRIBES* instalation directory.
-
-Install dependencies for tribes (requries download of about 500 MB of software packages):
+Install dependencies (requires about 500 MB for software packages):
 
 	./setup/install-with-conda.sh
 
@@ -137,6 +148,8 @@ To check the installation run:
 	./tribes
 
 This should display amongs others usage info.
+
+After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
 
 ## Manual installation
 
