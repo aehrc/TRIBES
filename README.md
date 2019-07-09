@@ -115,6 +115,7 @@ The comparision is presented in the form of a dot chart like this:
 
 ![Dot plot estimated vs true](docs/assets/est_vs_true.png)
 
+# Installation
 
 ## Installation for workstation use
 
