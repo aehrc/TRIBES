@@ -164,8 +164,6 @@ This should display among others usage info.
 
 After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
 
-After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
-
 ## Manual installation
 
 *TRIBES* is implemented as a `snakemake` pipeline and relies a number of bioinformatics tools for processing, such as `bcftools`, `bgzip`, `tabix`, `vcftools`, `germline`, `beagle` as well as a number of `python` an `R` packages.
