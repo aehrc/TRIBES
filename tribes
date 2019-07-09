@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 RCFILE="$HOME/.tribesrc"
 
@@ -8,6 +8,6 @@ if [ -e "$RCFILE" ]; then
 fi
 
 SNAKEMAKE="${SNAKEMAKE:-snakemake}"
-echo "Runnig with: ${SNAKEMAKE}"
+echo "Running with: ${SNAKEMAKE}"
 
 "${SNAKEMAKE}" "$@"

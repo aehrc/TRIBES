@@ -1,8 +1,20 @@
 TRIBES
 ======
-*TRIBES* is a user-friendly platform for relatedness detection in genomic data. *TRIBES* is the first tool which is both accurate (up to 7th degree) and combines essential data processing steps in a single platform.
+*TRIBES* is a user-friendly platform for relatedness detection in genomic data.
+*TRIBES* is the first tool which is both accurate (up to 7th degree) and
+combines essential data processing steps in a single platform.
 
-Accurately classifying the degree of relatedness between pairs of individuals has multiple important applications, including disease gene discovery, removal of confounding relatives in genome wide association studies (GWAS) and family planning. Currently no tools are available which are accurate beyond 3rd degree and combine the necessary data processing steps for accuracy and ease of use. To address this we have developed ‘TRIBES’, a user-friendly platform which leverages the GERMLINE algorithm to accurately identify distant relatives. TRIBES enables user-guided data pruning, phasing of genomes, IBD segment recovery, masking of artefactual IBD segments and finally relationship estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool which enables flexibility and reproducibility.
+Accurately classifying the degree of relatedness between pairs of individuals
+has multiple important applications, including disease gene discovery, removal
+of confounding relatives in genome wide association studies (GWAS) and family
+planning. Currently no tools are available which are accurate beyond 3rd degree
+and combine the necessary data processing steps for accuracy and ease of use.
+To address this we have developed ‘*TRIBES*’, a user-friendly platform which
+leverages the GERMLINE algorithm to accurately identify distant relatives.
+*TRIBES* enables user-guided data pruning, phasing of genomes, IBD segment
+recovery, masking of artefactual IBD segments and finally relationship
+estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool
+which enables flexibility and reproducibility.
 
 We demonstrate the accuracy of *TRIBES* in our publications [insert TRIBES] and [insert SOD1]
 
@@ -22,9 +34,12 @@ Watch a short video introducing *TRIBES* and its applications
 
 # Getting started
 
-This section describes the analysis of an example dataset. We advise that you run *TRIBES* on the example data first, to confirm you have installed  *TRIBES* correctly. To run *TRIBES* on your own datasets, refer to instructions from [Installation](#installation) onwards.
+This section describes the analysis of an example dataset. We advise that you
+run *TRIBES* on the example data first, to confirm you have installed  *TRIBES*
+correctly. To run *TRIBES* on your own datasets, refer to instructions from
+[Installation](#installation) onwards.
 
-*TRIBES* requires Linux-64 or MacOS-64 and about 10GB of free disk space for software, reference and example data.
+*TRIBES* requires a 64-bit version of Linux, MacOS or Windows 10, and about 10GB of free disk space for software, reference and example data.
 
 Install *TRIBES* using one of the methods described in the [Installation](#installation) section
 After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
@@ -43,7 +58,9 @@ Download and uncompress refecence data (1.2 GB)
 	tar -xzf REF_G1K-EUR_0.001.tar.gz
 	rm REF_G1K-EUR_0.001.tar.gz  (optionally)
 
-The reference data is subset of 1000 genomes dataset with unrelated 'EUR' inviduals and it's used in various stages of preprocessing (e.g. LD pruning, phasing and filtering on MAF).
+The reference data is subset of 1000 genomes dataset with unrelated 'EUR'
+inviduals and it's used in various stages of preprocessing (e.g. LD pruning,
+phasing and filtering on MAF).
 
 Download and uncompress example data (390 MB)
 
@@ -98,45 +115,54 @@ The comparision is presented in the form of a dot chart like this:
 
 ![Dot plot estimated vs true](docs/assets/est_vs_true.png)
 
-
 # Installation
 
-## Installation for workstation use 
+## Installation for workstation use
 
-TRIBES requires Linux-64 or MacOS-64.
+*TRIBES* requires a 64-bit version of Linux, MacOS or Windows 10.
 
+### Windows Subsystem for Linux (WSL)
+
+To run *TRIBES* on Windows 10, first install [Ubuntu](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6) from the Microsoft Store.
+	
+Then open the Ubuntu app from the Start menu.
+
+### Miniconda
+
+*TRIBES* has a list of dependencies required to be installed prior to running the analysis pipeline. For this, we use [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
+
+Install `miniconda` (3.7 or 2.7) from https://docs.conda.io/en/latest/miniconda.html:
+
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	sh Miniconda3-latest-Linux-x86_64.sh
+	
+###  Download *TRIBES*
+	
 Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
-and uncompress it to your selected directory.
+and extract it to your selected directory.
 
-Alternatively you can clone the (unstable) most recent version from github:
+Alternatively you can clone the most recent (unstable) version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
 
-### Installation of dependancies with miniconda
+### Installing *TRIBES*
 
-For *TRIBES* to run, it is essential to install dependancies which *TRIBES* uses during the analysis pipeline. We use package and environment manager, Miniconda for this.
+Go to the *TRIBES* installation directory.
 
-Install `miniconda` from https://docs.conda.io/en/latest/miniconda.html  (does not matter which python version, I use the one for Python 2.7):
-
-	wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
-	sh Miniconda2-latest-Linux-x86_64.sh
-
-Relogin to allow the changes in `.bash_profile` be activated.
-
-Go to the *TRIBES* instalation directory.
-
-Install dependencies for tribes (requries download of about 500 MB of software packages):
+Install dependencies (requires about 500 MB for software packages):
 
 	./setup/install-with-conda.sh
 
 This will create an conda environment named `tribes` and install all required dependencies,
-as well as create the appropriate *TRIBES *configuration file at `$HOME/.tribesrc`
+as well as create the appropriate *TRIBES* configuration file at `~/.tribesrc`
 
 To check the installation run:
 
 	./tribes
 
-This should display amongs others usage info.
+This should display among others usage info.
+
+After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
 
 After you install *TRIBES*, return to [Testing installation on example dataset](#testing-installation-on-example-dataset) to test the installation on example data.
 
