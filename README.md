@@ -141,9 +141,6 @@ Install `miniconda` (3.7 or 2.7) from https://docs.conda.io/en/latest/miniconda.
 Download the latest release of *TRIBES* from https://github.com/aehrc/TRIBES/releases
 and extract it to your selected directory.
 
-	wget https://github.com/aehrc/TRIBES/archive/v0.x.tar.gz
-	tar -xvf v0.1.tar.gz
-
 Alternatively you can clone the most recent (unstable) version from github:
 
 	git clone https://github.com/aehrc/TRIBES.git
