@@ -16,7 +16,7 @@ recovery, masking of artefactual IBD segments and finally relationship
 estimation. To facilitate ease-of-use we employ ‘Snakemake’, a workflow tool
 which enables flexibility and reproducibility.
 
-We demonstrate the accuracy of *TRIBES* in our publications [insert TRIBES] and [insert SOD1]
+We demonstrate the accuracy of *TRIBES* in our publications [here](https://www.biorxiv.org/content/10.1101/686253v1) and [here](https://www.biorxiv.org/content/10.1101/685925v2)
 
 Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *TRIBES* then follows these steps:
 1) The VCF is filtered using quality metrics contained within the VCF file.  
@@ -26,7 +26,7 @@ Briefly, input data to *TRIBES* is quality control filtered, joint sample VCF. *
 5) Adjusted IBD Segments are then summed to estimate relationships.
 6) *TRIBES* returns result files, including `.csv` of estimated relationships.
 
-The full TRIBES pipeline is described in detail in [Suppfile link to Bionf paper].
+The full TRIBES pipeline is described in detail in [Supplementary Material](https://www.biorxiv.org/content/10.1101/686253v1.supplementary-material).
 
 ## Learn more
 Watch a short video introducing *TRIBES* and its applications
