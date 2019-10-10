@@ -60,7 +60,7 @@ segments2germline <- function(segmengts) {
         Fam1 = Fam1,
         Id1 = Id1,
         Fam2 = Fam2,
-        Id2 = Id1,
+        Id2 = Id2,
         Chr = Chr,
         SegStart = Start.bp,
         SegEnd = End.bp,
