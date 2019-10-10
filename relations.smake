@@ -46,7 +46,7 @@ rule FPI_filter_population_ibd:
     params:
         ersa_mask=ref_path('ersa-mask.tsv')
     shell:
-        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask}"
+        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask} -u cM"
 
 
 #

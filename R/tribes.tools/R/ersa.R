@@ -67,6 +67,7 @@ adjustGermlineSegments <- function(germlineSegments, ersaMask) {
             Unit='bp',
             NoMismatch=NA ) %>%
         select(-MaskedSegStart, -MaskedSegEnd, -IsTruncated)
+    class(outputSegments) <- append(class(outputSegments), "germline")
     outputSegments
 }
 

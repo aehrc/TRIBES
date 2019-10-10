@@ -35,7 +35,7 @@ germline2ibdEstimate <-function(inputFile, outputFile, minSegLength.cM = 3.0, ve
     write.csv(sharedIBDPerPairWithDegree, outputFile, row.names = FALSE, quote = FALSE)
 }
 
-maskSegments <- function(inputFile, outputFile, ersaMask, verbose = FALSE, ...) {
+maskSegments <- function(inputFile, outputFile, ersaMask, units = 'bp', verbose = FALSE, ...) {
     germlineSegments <- read.germline(inputFile)
     if (verbose) {
         print("Germline segments")
@@ -49,10 +49,13 @@ maskSegments <- function(inputFile, outputFile, ersaMask, verbose = FALSE, ...) 
     }
 
     adjustedSegments <- adjustGermlineSegments(germlineSegments, ersaMask)
+    if (units == 'cM') {
+        normalizedSegments <- normalizeSegmentsWithGU(adjustedSegments, GeneticMap.default())
+        adjustedSegments <- segments2germline(normalizedSegments)
+    }
     if (verbose) {
         print("Adjusted segments")
         print(head(adjustedSegments))
     }
-
     write.germline(adjustedSegments, outputFile)
 }
