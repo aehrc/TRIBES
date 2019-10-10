@@ -3,7 +3,7 @@
 ## Highe level interface functions (specific for transformations)
 ##
 
-germline2ibdEstimate <-function(inputFile, outputFile, minSegLength.cM = 3.0, verbose = FALSE, ...) {
+germline2ibdEstimate <-function(inputFile, outputFile, minSegLength.cM = 3.0, verbose = FALSE, segmentsFile = NULL, ...) {
 
     germlineMatches <- read.germline(inputFile)
     if (verbose) {
@@ -15,7 +15,14 @@ germline2ibdEstimate <-function(inputFile, outputFile, minSegLength.cM = 3.0, ve
         print("Normalized segments")
         print(head(as.data.frame(normalizedSegments)))
     }
-    sharedIBDPerPair  <-estimateIBDSharing(normalizedSegments, minLength.cM = minSegLength.cM)
+    filteredSegments <- filterSegments(normalizedSegments, minLength.cM = minSegLength.cM)
+    if (!is.null(segmentsFile)) {
+        if (verbose) {
+            print(sprintf("Writting segments to: %s", segmentsFile))
+        }
+        write.germline(segments2germline(filteredSegments), segmentsFile)
+    }
+    sharedIBDPerPair  <-estimateIBDSharing(filteredSegments)
     if (verbose) {
         print("Estimated IBD")
         print(head(sharedIBDPerPair))
@@ -28,7 +35,7 @@ germline2ibdEstimate <-function(inputFile, outputFile, minSegLength.cM = 3.0, ve
     write.csv(sharedIBDPerPairWithDegree, outputFile, row.names = FALSE, quote = FALSE)
 }
 
-maskSegments <- function(inputFile, outputFile, ersaMask, verbose = FALSE, ...) {
+maskSegments <- function(inputFile, outputFile, ersaMask, units = 'bp', verbose = FALSE, ...) {
     germlineSegments <- read.germline(inputFile)
     if (verbose) {
         print("Germline segments")
@@ -42,12 +49,13 @@ maskSegments <- function(inputFile, outputFile, ersaMask, verbose = FALSE, ...) 
     }
 
     adjustedSegments <- adjustGermlineSegments(germlineSegments, ersaMask)
+    if (units == 'cM') {
+        normalizedSegments <- normalizeSegmentsWithGU(adjustedSegments, GeneticMap.default())
+        adjustedSegments <- segments2germline(normalizedSegments)
+    }
     if (verbose) {
         print("Adjusted segments")
         print(head(adjustedSegments))
     }
-
-    outf <- gzfile(outputFile, 'w')
-    write.table(adjustedSegments, outf, sep = '\t', col.names = FALSE, row.names = FALSE, quote = FALSE)
-    close(outf)
+    write.germline(adjustedSegments, outputFile)
 }

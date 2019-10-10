@@ -42,3 +42,13 @@ na.replace <-function(x, val) {
     x[is.na(x)]  <- val
     x
 }
+
+
+open.file <- function(filename, ...) {
+    if (file_ext(filename) == "gz") {
+        gzfile(filename, ...)
+    } else {
+        file(filename, ...)
+    }
+}
+

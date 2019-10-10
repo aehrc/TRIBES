@@ -6,6 +6,12 @@
 # Detect IBD segemnts with germline
 #
 
+DEF_MIN_SEG_LEN=3.0
+
+def min_seg_len():
+    return config.get('min_seg_len', DEF_MIN_SEG_LEN)
+
+
 rule germline:
     input:
         ped="{dir}/{file}.ped", 
@@ -13,9 +19,10 @@ rule germline:
     output:
         "{dir}_GRM/{file}.match"
     params:
-        prefix="{dir}_GRM/{file}"
+        prefix="{dir}_GRM/{file}",
+        min_seg=min_seg_len()
     shell:
-        "{BIN_DIR}/germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m 1.5 -err_het 1 -err_hom 2 -g_extend -w_extend"
+        "{BIN_DIR}/germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m {params.min_seg} -err_het 1 -err_hom 2 -g_extend -w_extend"
 
 #
 # Convert vcf to plinke format.
@@ -46,7 +53,7 @@ rule FPI_filter_population_ibd:
     params:
         ersa_mask=ref_path('ersa-mask.tsv')
     shell:
-        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask}"
+        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask} -u cM"
 
 
 #
@@ -57,9 +64,12 @@ rule estimateIBD0:
     input:
         "{filename}.match.gz"
     output:
-        "{filename}_IBD.csv"
+        degrees="{filename}_IBD.csv",
+        segments="{filename}_IBD-segments.match.gz"
+    params:
+        min_seg=min_seg_len()
     shell:
-        "{BIN_DIR}/ibd2degree -v -i {input} -o {output} -m 3.0"
+        "{BIN_DIR}/ibd2degree -v -i {input} -o {output.degrees} -s {output.segments} -m {params.min_seg}"
 
 #
 # Compare estimared degree relatedness vs reported (true) one.

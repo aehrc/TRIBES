@@ -9,6 +9,8 @@ option_list = list(
                 help="output file name [default= %default]", metavar="character"),
     make_option(c("-m", "--mask"), dest="ersaMask", type="character", default=NULL, 
                 help="ersa mask [default= %default]", metavar="character"),
+    make_option(c("-u", "--unit"), dest="unit", type="character", default='bp', 
+                help="The unit to use for segment lengths, either `bp` or `cM`. [default= %default]", metavar="character"),
     make_option(c("-v", "--verbose"), dest="verbose",default=FALSE, action="store_true", 
                 help="produce verbose output")
 ); 
