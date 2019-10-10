@@ -70,11 +70,5 @@ adjustGermlineSegments <- function(germlineSegments, ersaMask) {
     outputSegments
 }
 
-#germlineSegments <- read.germline('../../data/SOD1_germline_2_1_wg_3cM_128.match.gz')
-#head(germlineSegments)
-#ersaMask <- readErsaMask('../../data/ersa.out.msk')
-#head(ersaMask)
-
-
 
 

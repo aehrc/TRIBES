@@ -57,9 +57,10 @@ rule estimateIBD0:
     input:
         "{filename}.match.gz"
     output:
-        "{filename}_IBD.csv"
+        degrees="{filename}_IBD.csv",
+        segments="{filename}_IBD-segments.match.gz"
     shell:
-        "{BIN_DIR}/ibd2degree -v -i {input} -o {output} -m 3.0"
+        "{BIN_DIR}/ibd2degree -v -i {input} -o {output.degrees} -s {output.segments} -m 3.0"
 
 #
 # Compare estimared degree relatedness vs reported (true) one.
