@@ -11,6 +11,8 @@ DEF_MIN_SEG_LEN=3.0
 def min_seg_len():
     return config.get('min_seg_len', DEF_MIN_SEG_LEN)
 
+def ersa_mask():
+    return config.get('ersa_mask', ref_path('ersa-mask.tsv'))
 
 rule germline:
     input:
@@ -51,7 +53,7 @@ rule FPI_filter_population_ibd:
     output:
         "{filename}_FPI.match.gz"
     params:
-        ersa_mask=ref_path('ersa-mask.tsv')
+        ersa_mask=ersa_mask()
     shell:
         "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask} -u cM"
 
