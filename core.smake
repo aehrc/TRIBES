@@ -6,7 +6,6 @@ import os
 PWD=os.path.dirname(workflow.snakefile)
 
 BASE_DIR=PWD
-BIN_DIR=os.path.join(BASE_DIR,"scripts")
 RES_DIR=os.path.join(PWD,"res")
 
 

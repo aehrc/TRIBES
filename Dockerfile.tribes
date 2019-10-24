@@ -9,4 +9,5 @@ COPY Snakefile config.yaml *.smake /opt/tribes/
 COPY scripts /opt/tribes/scripts
 COPY python /opt/tribes/python
 WORKDIR /opt/tribes
+ENV PATH=$PATH:/opt/tribes/scripts
 ENTRYPOINT ["snakemake"]
