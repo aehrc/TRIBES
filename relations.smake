@@ -24,7 +24,7 @@ rule germline:
         prefix="{dir}_GRM/{file}",
         min_seg=min_seg_len()
     shell:
-        "{BIN_DIR}/germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m {params.min_seg} -err_het 1 -err_hom 2 -g_extend -w_extend"
+        "germlinew -input {input.ped} {input.map} -output {params.prefix} -bits 128 -min_m {params.min_seg} -err_het 1 -err_hom 2 -g_extend -w_extend"
 
 #
 # Convert vcf to plinke format.
@@ -41,7 +41,7 @@ rule vcf2plink:
         prefix="{dir}/{file}",
         gentic_map=ref_path('plink.chrALL.GRCh37.map.gz')
     shell:
-        "{BIN_DIR}/gzvcf2plink -i {input} -o {params.prefix} -r {params.gentic_map}"
+        "gzvcf2plink -i {input} -o {params.prefix} -r {params.gentic_map}"
 
 #
 # Filter out polulation IBD segments using ERSA mask
@@ -55,7 +55,7 @@ rule FPI_filter_population_ibd:
     params:
         ersa_mask=ersa_mask()
     shell:
-        "{BIN_DIR}/maskSegments -v -i {input} -o {output} -m {params.ersa_mask} -u cM"
+        "maskSegments -v -i {input} -o {output} -m {params.ersa_mask} -u cM"
 
 
 #
@@ -71,7 +71,7 @@ rule estimateIBD0:
     params:
         min_seg=min_seg_len()
     shell:
-        "{BIN_DIR}/ibd2degree -v -i {input} -o {output.degrees} -s {output.segments} -m {params.min_seg}"
+        "ibd2degree -v -i {input} -o {output.degrees} -s {output.segments} -m {params.min_seg}"
 
 #
 # Compare estimared degree relatedness vs reported (true) one.

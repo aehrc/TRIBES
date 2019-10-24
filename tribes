@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+PWD="$(cd `dirname $0`; pwd)"
+
+export PATH="${PWD}/scripts:${PATH}"
+echo "Path: ${PATH}"
+
 RCFILE="$HOME/.tribesrc"
 
 if [ -e "$RCFILE" ]; then
