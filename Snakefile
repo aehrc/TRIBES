@@ -4,6 +4,7 @@
 
 # Condiguration
 
+singularity: "docker://docker-registry.it.csiro.au/tribes/tribes"
 configfile: "config.yaml"
 
 
