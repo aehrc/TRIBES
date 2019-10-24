@@ -13,7 +13,6 @@ include: "relations.smake"
 
 # Variables
 
-FLUSH_DIR="/flush3/{USER}".format(**os.environ)
 REL_SAMPLE=config['rel_sample']
 
 localrules: all

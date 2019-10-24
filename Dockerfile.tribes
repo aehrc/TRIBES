@@ -1,0 +1,12 @@
+FROM aehrc/tribes-base:latest
+
+#  $ docker build . -t biolabs/snakemake
+#  $ docker run --rm -it biolabs/snakemake /bin/bash
+#  $ docker push biolabs/snakemake
+MAINTAINER Piotr Szul <Piotr.Szul@data61.csiro.au>
+#Install package
+COPY Snakefile config.yaml *.smake /opt/tribes/
+COPY scripts /opt/tribes/scripts
+COPY python /opt/tribes/python
+WORKDIR /opt/tribes
+ENTRYPOINT ["snakemake"]
