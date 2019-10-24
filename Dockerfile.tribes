@@ -1,4 +1,4 @@
-FROM aehrc/tribes-base:latest
+FROM tribes/tribes-base:latest
 
 #  $ docker build . -t biolabs/snakemake
 #  $ docker run --rm -it biolabs/snakemake /bin/bash
