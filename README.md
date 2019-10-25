@@ -40,8 +40,10 @@ correctly. To run *TRIBES* on your own datasets, refer to instructions from
 [Installation](#installation) onwards.
 
 *TRIBES* requires a 64-bit version of Linux, MacOS or Windows 10, and about 10GB of free disk space for software, reference and example data.
+Install *TRIBES* using one of the methods described in the [Installation](#installation) section.
 
-Install *TRIBES* using one of the methods described in the [Installation](#installation) section
+Alternativelly you can run *TRIBES* froma pre-packaged docker image using `docker` or `singularity` (see: [Container](#container) section).
+
 After installation return to [Testing installation on example dataset](#testing-installation-on-example-dataset)
 
 ## Testing installation on example dataset
@@ -84,9 +86,18 @@ identifies `TF-CEU-15.vcf.gz` as the input file and applies 3 pre-processing ste
 
 Note: Please note that the IBD estimation requires a phased VCF file. If the input file is not phased, pre-processing must include phasing (usually last the last step, after filtering),  e.g. `TF-CEU-15-2_BiSnp_MAF:0.01_LD_PH` (where 'PH' in the file name indicates to phase without reference) or `TF-CEU-15-2_BiSnp_MAF:0.01_LD_RPH` (with 'RPH' in the filename indicates to phase with reference). This is not required in this example becasue the input VCF is phased.
 
-Go to your *TRIBES* installation directory and run *TRIBES* with:
+To run from a local installation do to your *TRIBES* installation directory and run *TRIBES* with:
 
 	./tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
+
+To run using `docker`:
+	
+	docker run -it -rm -v "$HOME/tribes-data:$HOME/tribes-data" docker.io/piotrszul/tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
+
+To run using `singularity`:
+
+	singularity run -e  docker://docker.io/piotrszul/tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
+
 
 Where `no_cpu_cores` is the number of CPU cores to use. `estimate_degree_vs_true` calls *TRIBES* to perform all relatedness estimation steps described in `IBD/Relatedness steps:` under [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
 
@@ -284,6 +295,27 @@ The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations
 - `TF-CEU-15-2.vcf.gz` : VFC file for the simulated genotypes
 - `g1k_ceu_family_15_2.ped`: pedigree
 - `TF-CEU-15-2.true.rel` : true relations
+
+
+# Containers
+
+*TRIBES* docker image includes the pipeline and all the dependences and it's publicly available from https://hub.docker.com/r/piotrszul/tribes and can pulled with:
+
+	docker pull docker.io/piotrszul/tribes
+
+It's an executable image with `snakemake` as an entry point.
+
+When running using docker it's necessary to mount the reference data and pipeline data volumes (or local filesystem) so that the container have access to both, e.g:
+
+	docker -it --rm -v <path-to-ref-data>:<path-to-ref-data> -v <path-to-data>:<path-to-data> docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
+
+When running with `singularity` this may not be need if the volumes with data and reference data are mounted as per configuration. One important consideration though is to use `-e`
+ flag as some host environment variables (e.g. related to pyton) casue issues while running in the containter:
+
+
+ 	singularity run -e  docker://docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
+
+
 
 # Issues and comments
 

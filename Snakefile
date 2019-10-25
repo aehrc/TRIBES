@@ -1,12 +1,8 @@
-##
-## Specific for ALS850
-##
 
 # Condiguration
 
-singularity: "docker://docker-registry.it.csiro.au/tribes/tribes"
+singularity: "docker://docker.io/piotrszul/tribes"
 configfile: "config.yaml"
-
 
 include: "core.smake"
 include: "process.smake"

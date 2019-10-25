@@ -1,8 +1,8 @@
 FROM continuumio/miniconda3:latest
 
-#  $ docker build . -t biolabs/snakemake
-#  $ docker run --rm -it biolabs/snakemake /bin/bash
-#  $ docker push biolabs/snakemake
+#  $ docker build . -t aehrc/tribes
+#  $ docker run --rm -it aehrc/tribes -d <workdir>
+#  $ docker push aehrc/tribes
 MAINTAINER Piotr Szul <Piotr.Szul@data61.csiro.au>
 
 # Resolve issue with undefined user name for LDAP users, e.g remove warnings
@@ -47,3 +47,10 @@ COPY R /root/R
 RUN Rscript --vanilla -e "install.packages('/root/R/tribes.tools',repos=NULL)"
 RUN rm -rf /root/R
 
+#Install package
+COPY Snakefile config.yaml *.smake /opt/tribes/
+COPY scripts /opt/tribes/scripts
+COPY python /opt/tribes/python
+COPY notebooks /opt/tribes/notebooks
+ENV PATH=$PATH:/opt/tribes/scripts
+ENTRYPOINT ["snakemake","-s","/opt/tribes/Snakefile"]
