@@ -1,11 +1,8 @@
-##
-## Specific for ALS850
-##
 
 # Condiguration
 
+singularity: "docker://docker.io/piotrszul/tribes"
 configfile: "config.yaml"
-
 
 include: "core.smake"
 include: "process.smake"
@@ -13,7 +10,6 @@ include: "relations.smake"
 
 # Variables
 
-FLUSH_DIR="/flush3/{USER}".format(**os.environ)
 REL_SAMPLE=config['rel_sample']
 
 localrules: all
