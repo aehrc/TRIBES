@@ -1,5 +1,5 @@
 cluster: "sbatch -t {cluster.time} --cpus-per-task {cluster.ncpus}"
-cluster-config: "cluster.yaml"
+cluster-config: "~/.config/snakemake/cluster/cluster.yaml"
 jobs: 22
 latency-wait: 40
 

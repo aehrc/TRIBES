@@ -7,6 +7,12 @@ It can be used as reference for runnign tribes in other cluster environments.
 
 CSIRO HPC cluster is running 20CPU 128GB nodes with `slurm` as scheduler and `env modulules` to support versioning of tools and applications. 
 
+## Running with Singularity
+
+
+	snakemake --profile cluster --use-singularity -d /scratch1/szu004/tribes/TFCeu estimate_degree_vs_true
+
+
 ## Setting up on pearcey 
 
 This is CSIRO internal setup, but in the futre will be extened to support 
