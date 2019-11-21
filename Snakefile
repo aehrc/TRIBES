@@ -22,7 +22,7 @@ rule all:
 
 rule estimate_degree:
     input:
-        "_".join([REL_SAMPLE,'GRM-allchr','FPI', 'IBD.csv'])
+        ["_".join([s,'GRM-allchr','FPI', 'IBD.csv']) for s in expand(REL_SAMPLE, **config)]
 
 rule estimate_degree_vs_true:
     input:

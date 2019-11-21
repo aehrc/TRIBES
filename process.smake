@@ -133,6 +133,6 @@ rule select_sample:
         vcf="{dir}/{file}.vcf.gz",
         csi="{dir}/{file}.vcf.gz.csi"
     output:
-        "{dir}_S:{sample}/{file}.vcf.gz"
+        "{dir}_S@{sample}/{file}.vcf.gz"
     shell:
-        "bcftools view -S {RES_DIR}/{wildcards.sample}_sample.txt --force-samples -Oz -o {output} {input.vcf}"
+        "bcftools view -S _samples/{wildcards.sample}.txt --force-samples -Oz -o {output} {input.vcf}"
