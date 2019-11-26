@@ -61,7 +61,7 @@ rule annotate_eur_af:
     input:
         "{dir}/chr{chri}.vcf.gz"
     output:
-        "{dir}_EurAF:{maf,[^_]+}/chr{chri}.vcf.gz"
+        "{dir}_EurAF@{maf,[^_]+}/chr{chri}.vcf.gz"
     params:
         maf_upper = lambda wildcards: str(1-float(wildcards['maf']))
     shell:
@@ -77,7 +77,7 @@ rule fileter_with_ref_maf:
         vcf="{dir}/chr{chri}.vcf.gz",
         idx="{dir}/chr{chri}.vcf.gz.csi"
     output:
-        "{dir}_MAF:{maf,[^_]+}/chr{chri}.vcf.gz"
+        "{dir}_MAF@{maf,[^_]+}/chr{chri}.vcf.gz"
     params:
         maf_upper = lambda wildcards: str(1-float(wildcards['maf'])),
         ref_sample = get_ref_sample()
