@@ -1,7 +1,7 @@
 
 # Condiguration
 
-singularity: "docker://docker.io/piotrszul/tribes"
+singularity: "docker://docker.io/piotrszul/tribes:0.1.1"
 configfile: "config.yaml"
 
 include: "core.smake"

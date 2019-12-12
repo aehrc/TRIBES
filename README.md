@@ -66,7 +66,7 @@ phasing and filtering on MAF).
 
 Download and uncompress example data (390 MB)
 
-	wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/TFCeu.tar.gz
+	wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.1/TFCeu.tar.gz
 	tar -xzf TFCeu.tar.gz
 	rm TFCeu.tar.gz  (optionally)
 
@@ -92,11 +92,11 @@ To run from a local installation do to your *TRIBES* installation directory and 
 
 To run using `docker`:
 	
-	docker run -it -rm -v "$HOME/tribes-data:$HOME/tribes-data" docker.io/piotrszul/tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
+	docker run -it -rm -v "$HOME/tribes-data:$HOME/tribes-data" docker.io/piotrszul/tribes:0.1.1 -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
 To run using `singularity`:
 
-	singularity run -e  docker://docker.io/piotrszul/tribes -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
+	singularity run -e  docker://docker.io/piotrszul/tribes:0.1.1 -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
 
 Where `no_cpu_cores` is the number of CPU cores to use. `estimate_degree_vs_true` calls *TRIBES* to perform all relatedness estimation steps described in `IBD/Relatedness steps:` under [Preparing a custom pipeline](#Preparing-a-custom-pipeline)
@@ -299,9 +299,12 @@ The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations
 
 # Containers
 
-*TRIBES* docker image includes the pipeline and all the dependences and it's publicly available from https://hub.docker.com/r/piotrszul/tribes and can pulled with:
+*TRIBES* docker image includes the pipeline and all the dependences and it's publicly available from https://hub.docker.com/r/piotrszul/tribes as `docker.io/piotrszul/tribes` and the most
+recent version can pulled with:
 
 	docker pull docker.io/piotrszul/tribes
+
+To use a specifc version e.g.: `0.1.1` please use `docker.io/piotrszul/tribes:0.1.1` as the docker image name.
 
 It's an executable image with `snakemake` as an entry point.
 
@@ -314,7 +317,6 @@ When running with `singularity` this may not be need if the volumes with data an
 
 
  	singularity run -e  docker://docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
-
 
 
 # Issues and comments
