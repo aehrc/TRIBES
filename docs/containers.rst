@@ -1,7 +1,7 @@
-.. _sec-datasets:
+.. _sec-containers:
 
 ===========
-Contatiners
+Containers
 ===========
 
 *TRIBES* docker image includes the pipeline and all the dependences and
@@ -35,4 +35,3 @@ in the containter:
 ::
 
     singularity run -e  docker://docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
-    
