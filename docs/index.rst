@@ -21,12 +21,13 @@ which enables flexibility and reproducibility.
 We demonstrate the accuracy of **TRIBES** in our publications [here](https://www.biorxiv.org/content/10.1101/686253v1) and [here](https://www.biorxiv.org/content/10.1101/685925v2)
 
 Briefly, input data to **TRIBES** is quality control filtered, joint sample VCF. *TRIBES* then follows these steps:
-1) The VCF is filtered using quality metrics contained within the VCF file.  
-2) The resultant VCF is then phased using BEAGLE.
-3) IBD Segments are then estimated using GERMLINE.
-4) Artefactual IBD is masked using a reference file by adjusting segment endpoints.
-5) Adjusted IBD Segments are then summed to estimate relationships.
-6) **TRIBES** returns result files, including `.csv` of estimated relationships.
+
+1. The VCF is filtered using quality metrics contained within the VCF file.  
+2. The resultant VCF is then phased using BEAGLE.
+3. IBD Segments are then estimated using GERMLINE.
+4. Artefactual IBD is masked using a reference file by adjusting segment endpoints.
+5. Adjusted IBD Segments are then summed to estimate relationships.
+6. **TRIBES** returns result files, including `.csv` of estimated relationships.
 
 The full TRIBES pipeline is described in detail in [Supplementary Material](https://www.biorxiv.org/content/10.1101/686253v1.supplementary-material).
 
