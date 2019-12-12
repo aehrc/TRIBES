@@ -11,11 +11,11 @@ correctly. To run **TRIBES** on your own datasets, refer to instructions from
 
 *TRIBES* requires a 64-bit version of Linux, MacOS or Windows 10, and
 about 10GB of free disk space for software, reference and example data.
-Install *TRIBES* using one of the methods described in the
-`Installation <#installation>`__ section.
+Install **TRIBES** using one of the methods described in the
+:ref:`sec-installation` section.
 
-Alternativelly you can run *TRIBES* froma pre-packaged docker image
-using ``docker`` or ``singularity`` (see: `Container <#container>`__
+Alternativelly you can run **TRIBES** froma pre-packaged docker image
+using ``docker`` or ``singularity`` (see: :ref:`sec-container`
 section).
 
 After installation return to `Testing installation on example
@@ -24,7 +24,7 @@ dataset <#testing-installation-on-example-dataset>`__
 Testing installation on example dataset
 ---------------------------------------
 
-To demonstate how *TRIBES* works we will use an example dataset (TFCeu)
+To demonstate how **TRIBES** works we will use an example dataset (TFCeu)
 with reference data from 1000 Genomes 'EUR' superpopulation
 (REF-G1K\_EUR).
 
@@ -58,14 +58,14 @@ Download and uncompress example data (390 MB)
 
 The sample data is a synthetic pedigee created from unrelated 1000
 Genomes 'CEU' individuals. For more info on the dataset see the
-`Datasets <#datasets>`__ section. Inside the ``TFCeu`` directory you
+:ref:`sec-installation` section. Inside the ``TFCeu`` directory you
 will find the following files:
 
 -  ``TF-CEU-15-2.vcf.gz`` - the source multisample VCF files
 -  ``TF-CEU-15-2.true.rel`` - the true pariwise relations
 -  ``g1k_ceu_family_15_2.ped`` - pedigee
 -  ``config.yaml`` - the configuration file describing the steps taken
-   in *TRIBES* pipeline.
+   in **TRIBES** pipeline.
 
 The ``config.yaml`` provides configuration for the pipeline defining the
 location and name of reference data and the true relations file, as well
@@ -91,8 +91,8 @@ indicates to phase without reference) or
 indicates to phase with reference). This is not required in this example
 becasue the input VCF is phased.
 
-To run from a local installation do to your *TRIBES* installation
-directory and run *TRIBES* with:
+To run from a local installation do to your **TRIBES** installation
+directory and run **TRIBES** with:
 
 ::
 
@@ -111,7 +111,7 @@ To run using ``singularity``:
     singularity run -e  docker://docker.io/piotrszul/tribes:0.1.1 -d $HOME/tribes-data/TFCeu -j <no_cpu_cores> estimate_degree_vs_true
 
 Where ``no_cpu_cores`` is the number of CPU cores to use.
-``estimate_degree_vs_true`` calls *TRIBES* to perform all relatedness
+``estimate_degree_vs_true`` calls **TRIBES** to perform all relatedness
 estimation steps described in ``IBD/Relatedness steps:`` under
 `Preparing a custom pipeline <#Preparing-a-custom-pipeline>`__
 
@@ -149,7 +149,5 @@ browser (e.g. ``firefox``):
 
 The comparision is presented in the form of a dot chart like this:
 
-.. figure:: docs/assets/est_vs_true.png
+.. figure:: assets/est_vs_true.png
    :alt: Dot plot estimated vs true
-
-   Dot plot estimated vs true
