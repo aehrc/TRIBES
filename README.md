@@ -249,7 +249,7 @@ For example, a user may wish to identify relationships using an unphased input V
 
 Their `config.yaml` file would look like this:
 
-- ref_sample: `filename_BiSnpNM_MAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
+- rel_sample: `filename_BiSnpNM_MAF:0.01_RPH`  [where `filename` refers to the input VCF filename]
 - ref_dir: `../REF_G1K-EUR_0.001`  [where ref_dir is the location of the reference directory, which hosts the cohost used for filtering on MAF and LD, phasing and masking steps]
 
 The user would then run *TRIBES* from the installation directory as in the [Getting started](#Getting-started) section
@@ -264,7 +264,7 @@ Alternatively, a user may want to identify novel relationship, as well as confir
 
 Their `config.yaml` file would look like this:
 
-- ref_sample: `filename_BiSnpNM_MAF:0.01_QC_RPH`  
+- rel_sample: `filename_BiSnpNM_MAF:0.01_QC_RPH`  
 - ref_dir: `../REF_G1K-EUR_0.001`  
 - rel_true: `filename.true.rel` [a reference file containing known relationships,required if step `RVT` is used in the pipeline]
 
