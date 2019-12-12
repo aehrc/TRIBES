@@ -32,17 +32,16 @@ Briefly, input data to **TRIBES** is quality control filtered, joint sample VCF.
 The full TRIBES pipeline is described in detail in [Supplementary Material](https://www.biorxiv.org/content/10.1101/686253v1.supplementary-material).
 
 
+Learn more
+~~~~~~~~~~
+
+Watch a short video introducing *TRIBES* and its applications 
+
 .. image:: assets/tribes_video.jpg
    :target: https://www.thinkable.org/submission_entries/l3jw6v8G
 
-Learn more
-----------
-
-Watch a short video introducing *TRIBES* and its applications |TRIBES
-video|
-
 Contact
--------
+~~~~~~~
 
 Please report any issues or ideas at:
 https://github.com/aehrc/TRIBES/issues
