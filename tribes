@@ -2,11 +2,17 @@
 
 PWD="$(cd `dirname $0`; pwd)"
 
+version()
+{
+   grep "VERSION=" "${PWD}/Snakefile"
+}
+
 usage ()
 { 
    echo ''
    echo 'TRIBES is a `snakemake` based IBD detection and relatedness estimation pipeline.'
-   echo 'For more information please check: https://github.com/aehrc/TRIBES'
+   echo 'For more information please check: https://github.com/aehrc/TRIBES.'
+   echo "$(version)" 
    echo ''
    echo 'Usage:'
    echo '    tribes -d <working dir> <other-snakemake-options> (estimate_degree|estimate_degree_vs_true)'
