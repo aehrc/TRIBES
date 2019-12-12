@@ -40,6 +40,10 @@ Contents:
    :maxdepth: 2
    
    getting_started
+   installation
+   usage
+   datasets
+   containers
    
    
 Indices and tables
