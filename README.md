@@ -287,7 +287,7 @@ It includes all biallelic SNPs with `MAF > 0.001` for unrelated invidiuals from 
 
 ### TrueFamily CEU (TFCeu)
 
-Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/TFCeu.tar.gz
+Location: https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.1/TFCeu.tar.gz
 
 This is synthetic dataset with simulated genotypes based on unrelated individuals from CEU population of [1000 Genomes Project][g1k].
 The pedigree is defined in `g1k_ceu_family_15_2.ped` and includes 15 generations.
