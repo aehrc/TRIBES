@@ -28,7 +28,7 @@ dependencies:
 # other tools
  - pandoc=2.7.2
 # bioconda packages
- - beagle=4.1_21Jan17.6cc.jar
+ - beagle=5.1_24Aug19.3e8
  - bcftools=1.9
  - htslib=1.9
  - vcftools=0.1.16
