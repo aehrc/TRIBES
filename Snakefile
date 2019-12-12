@@ -1,8 +1,8 @@
 # Condiguration
 
 VERSION="0.2.0"
-
 singularity: "docker://docker.io/piotrszul/tribes:%s" % VERSION 
+
 configfile: "config.yaml"
 
 include: "core.smake"
