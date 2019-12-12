@@ -36,7 +36,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 # Install snakemake and other packages
 COPY setup/environment.yaml /root/environment.yaml
-RUN conda update  --yes -n base -c defaults conda && \
+RUN conda install  --yes -n base -c defaults conda=4.7.12 && \
     conda env update -n base --file /root/environment.yaml && \
     conda clean   --yes --all
 RUN rm /root/environment.yaml
@@ -48,9 +48,8 @@ RUN Rscript --vanilla -e "install.packages('/root/R/tribes.tools',repos=NULL)"
 RUN rm -rf /root/R
 
 #Install package
-COPY Snakefile config.yaml *.smake /opt/tribes/
+COPY Snakefile config.yaml *.smake tribes /opt/tribes/
 COPY scripts /opt/tribes/scripts
 COPY python /opt/tribes/python
 COPY notebooks /opt/tribes/notebooks
-ENV PATH=$PATH:/opt/tribes/scripts
-ENTRYPOINT ["snakemake","-s","/opt/tribes/Snakefile"]
+ENTRYPOINT ["/opt/tribes/tribes"]
