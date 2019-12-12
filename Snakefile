@@ -12,9 +12,9 @@ include: "relations.smake"
 
 REL_SAMPLE=config['rel_sample']
 
-localrules: all
+localrules: usage
 
-rule all:
+rule usage:
     shell:
         "echo 'Usage:' ;"
         "echo '    tribes -d <working dir> (estimate_degree|estimate_degree_vs_true)'"
