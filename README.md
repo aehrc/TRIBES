@@ -1,6 +1,8 @@
 TRIBES
 ======
 
+[![Documentation Status](https://readthedocs.org/projects/tribes/badge/?version=latest)](http://tribes.readthedocs.io/en/latest/?badge=latest)
+
 This is documentation to TRIBES version 0.2+. For the the documentation for older version 0.1 please check https://github.com/aehrc/TRIBES/tree/branch-0.1 .
 
 
