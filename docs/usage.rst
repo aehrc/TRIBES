@@ -25,6 +25,9 @@ Input data
 Refer to files inside example dataset ``TFCeu/`` directory for correct
 format for these input files.
 
+
+.. _subsec-usage-preparing_a_custom_pipeline:
+
 Preparing a custom pipeline
 ---------------------------
 
@@ -93,7 +96,7 @@ the `Getting started <#Getting-started>`__ section
 
 where\ ``estimate_degree`` is an alias which calls *TRIBES* to perform
 the ``GRM``, ``FPI`` and ``IBD`` steps described under 'IBD/Relatedness
-steps' in `Preparing a custom pipeline <#Preparing-a-custom-pipeline>`__
+steps' in `Preparing a custom pipeline`_
 
 Example 2
 ~~~~~~~~~
@@ -121,5 +124,5 @@ the `Getting started <#Getting-started>`__ section
 If users provide a ``rel_true:`` file in the ``config_yaml`` file, they
 can call ``estimate_degree_vs_true`` which is an alias that calls
 *TRIBES* to perform the ``GRM``, ``FPI``, ``IBD`` and ``RVT`` steps
-described under 'IBD/Relatedness steps' in `Preparing a custom
-pipeline <#Preparing-a-custom-pipeline>`__
+described under 'IBD/Relatedness steps' in `Preparing a custom pipeline`_
+

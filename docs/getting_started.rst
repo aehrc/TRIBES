@@ -15,11 +15,12 @@ Install **TRIBES** using one of the methods described in the
 :ref:`sec-installation` section.
 
 Alternativelly you can run **TRIBES** froma pre-packaged docker image
-using ``docker`` or ``singularity`` (see: :ref:`sec-container`
+using ``docker`` or ``singularity`` (see: :ref:`sec-containers`
 section).
 
-After installation return to `Testing installation on example
-dataset <#testing-installation-on-example-dataset>`__
+After installation return to `Testing installation on example dataset`_
+
+.. _subsec-getting_started-testing_installation_on_example_dataset:
 
 Testing installation on example dataset
 ---------------------------------------
@@ -113,7 +114,7 @@ To run using ``singularity``:
 Where ``no_cpu_cores`` is the number of CPU cores to use.
 ``estimate_degree_vs_true`` calls **TRIBES** to perform all relatedness
 estimation steps described in ``IBD/Relatedness steps:`` under
-`Preparing a custom pipeline <#Preparing-a-custom-pipeline>`__
+:ref:`subsec-usage-preparing_a_custom_pipeline`.
 
 It takes about 20 minutes to to run the entire pipeline using 4 cores.
 

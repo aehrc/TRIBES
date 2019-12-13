@@ -70,9 +70,8 @@ To check the installation run:
 
 This should display among others usage info.
 
-After you install *TRIBES*, return to `Testing installation on example
-dataset <#testing-installation-on-example-dataset>`__ to test the
-installation on example data.
+After you install *TRIBES*, return to :ref:`subsec-getting_started-testing_installation_on_example_dataset` 
+to test the installation on example data.
 
 Manual installation
 -------------------
