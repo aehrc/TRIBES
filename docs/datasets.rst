@@ -27,7 +27,7 @@ TrueFamily CEU (TFCeu)
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Location:
-https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.1/TFCeu.tar.gz
+https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.2/TFCeu.tar.gz
 
 This is synthetic dataset with simulated genotypes based on unrelated
 individuals from CEU population of `1000 Genomes
