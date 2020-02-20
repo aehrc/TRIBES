@@ -19,6 +19,8 @@ dependencies:
  - pip=19.1
  - pip:
    - snakemake==5.4.5
+   - Click==7.0                
+   - click-option-group==0.2.3 
 # R packages
  - r-base=3.5.1
  - r-optparse=1.6.1
