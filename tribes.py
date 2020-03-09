@@ -49,7 +49,7 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
         help='Reference data directory')
 @io.option('--output', required = True, default = None, type=str, 
         help='The prefix for the output file.')
-@io.option('--output-segments/--no-output-segments', required = False, default = False, show_default=True,
+@io.option('--output-segments/--no-output-segments', required = False, default = True, show_default=True,
         help='Whether to output segment files.')
 
 @pipeline.option('--qc/--no-qc', required = False, default = False, is_flag = True, 
@@ -61,11 +61,11 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
 @pipeline.option('--bi-snp/--no-bi-snp', required = False, default = True, is_flag = True, show_default=True, 
         help='Keep only bi-allelic SNPs.')
 @pipeline.option('--maf/--no-maf', required = False, default = True, is_flag=True, show_default=True,
-        help='Filter out loci with minor allele frequency less than given.')
+        help='Filter out SNPs with minor allele frequency less than value given.')
 @pipeline.option('--maf-min', required = False, default = 0.01, type=float, show_default=True,
         help='Min MAF to keep.')
 @pipeline.option('--ld-prune/--no-ld-prune', required = False, default = False, is_flag = True, show_default=True,
-        help='Peform ld prunning')
+        help='Peform ld pruning with R2 of 0.95 (?)')
 @pipeline.option('--phase/--no-phase', required = False, default = True, is_flag = True, show_default=True,
         help='Peform phasing')
 @pipeline.option('--phase-with-ref/--phase-without-ref', required = False, default = True, is_flag = True, show_default=True,
