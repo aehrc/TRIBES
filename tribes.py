@@ -42,6 +42,52 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
 #def cli(noop, verbose):
 #    pass
 
+class Context:
+    def __init__(self, yes):
+        self._yes = yes
+
+    def debug(self, msg):
+        click.echo("DEBUG: %s" % msg)
+
+    def echo(self, msg):
+        click.echo(msg)
+
+    def warn(self, msg):
+        click.echo("WARN: %s" % msg)
+
+    def error(self, msg):
+        click.echo("ERROR: %s " % msg)
+        click.echo("Exiting...")
+        exit(1)
+
+    def confirm(self, msg):
+        if self._yes:
+            self.debug("Responding YES to: %s" % msg)
+            return True
+        else:
+            return click.confirm(msg)
+
+
+def is_tribes_work_dir(dir_name):
+    return path.isdir(dir_name) and path.isfile(path.join(dir_name,'.tribes'))
+
+
+class TribesDir:
+
+    def __init__(self, work_dir, rel_sample):
+        self._work_dir = work_dir
+        self._rel_sample = rel_sample
+
+    def run_snakemake(self, options=''):
+        os.system("./tribes -d %s %s estimate_degree" % (self._work_dir, options))
+
+    def output_estimate(self, output_path):
+        shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD.csv"), output_path)
+
+    def output_segments(self, output_path):
+        shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD-segments.match.gz"), output_path)
+
+
 
 @click.command()
 @io.option('--vcf', required = True, default = None, type=str)
@@ -76,11 +122,25 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
         help='Clean the working directory before execution')
 @ctl.option('--force', required = False, default = False, is_flag = True, show_default=True,
         help='Force execution on uncleaned directory')
+@ctl.option('--work-dir', required = False, default = None, type=str, show_default=True,
+        help='Working directory.')
+@ctl.option('--keep-work-dir/--no-keep-work-dir', required = False, default = True, show_default=True,
+        help='Keep the contents of the working directory after execution')
+@click.option('--yes', required = False, default = False, is_flag=True, show_default=True,
+        help='Answer yes to all prompts')
+@click.option('--verbose', required = False, default = False, is_flag=True, show_default=True,
+        help='Be more verobose')
+@click.option('--snakemake', required = False, default = "", type=str, show_default=True,
+        help='Extra options to pass to snakemake.')
 
 def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, output,
-    output_segments, **flags):
+    output_segments, work_dir, keep_work_dir, yes, clean, force, snakemake, **flags):
     """ Estimate relatedness using IBD0
     """
+    ctx = Context(yes)
+
+    #TODO: Get actual version
+    ctx.echo("TRIBES version: xxxxx")
     click.echo("Estimate")
     click.echo(flags)
     #click.echo(sys.argv)
@@ -97,12 +157,20 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
             print(error)
         sys.exit(1)
 
-    work_dir = path.join(path.dirname(vcf), '_workdir')
-    print("Working dir is: %s" % work_dir)    
+
+    if work_dir is None:
+        work_dir = path.join(path.dirname(vcf), '_workdir')
+
+    ctx.debug("Working dir is: %s" % work_dir)    
 
     if not path.isdir(work_dir):
         os.makedirs(work_dir)
-    
+        with open(path.join(work_dir,'.tribes'), 'w') as token:
+            token.write("TRIBES")
+    elif is_tribes_work_dir(work_dir):
+        ctx.debug("Using an existing working dir: '%s'" % work_dir)
+    else:
+        ctx.error("The dir '%s' already exists but is not a `TRIBES` working directory." % work_dir)
 
     if not path.islink(path.join(work_dir, path.basename(vcf))):
         os.symlink(vcf, path.join(work_dir, path.basename(vcf)))
@@ -124,25 +192,43 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
 
 
     rel_sample = "_".join(process_steps)
-    print("Ref sample: %s" % rel_sample)
+
+    tribes = TribesDir(work_dir, rel_sample)
+    print("Rel sample: %s" % rel_sample)
     print("XConfig: %s" % config)
 
     config = dict(rel_sample = rel_sample, 
         ref_dir = ref, 
         rel_true= '')
     config_filename = path.join(work_dir, 'config.yaml')
+
+    # check if the config exists in the working dir
+    # and if yes than if it matches 
+    if path.isfile(config_filename):
+        ctx.debug("There is an existing config file at: '%s'" % config_filename)
+        with open(config_filename, 'r') as ef:
+            existing_config = yaml.load(ef)
+        ctx.debug("The existing config is: %s" % existing_config)
+        if existing_config != config:
+            if not force:
+                ctx.error("""The existing configuration in working directory: '%s' does not match the current set of options.
+Please consider the following options: TBP""" % work_dir)
+            else:
+                ctx.warn("Forcing excution unclean directory despite mismatching options. The results mayby incorrect")
+
     print("Writing configuration: %s to config file %s" % (config, config_filename))
     with open(config_filename, "w") as cf:
         yaml.dump(config, cf, default_flow_style=False)
     # fail if config already exists
 
-    os.system("./tribes -d %s estimate_degree" % work_dir)
+    tribes.run_snakemake(snakemake)
+    tribes.output_estimate(output + "-estimate.csv")
+    output_segments and tribes.output_segments(output + "-segments.match.gz")
 
 
-    shutil.copy2(path.join(work_dir, rel_sample + "_GRM-allchr_FPI_IBD.csv"), output + ".csv")
-
-    if (output_segments):
-        shutil.copy2(path.join(work_dir, rel_sample + "_GRM-allchr_FPI_IBD-segments.match.gz"), output + "-segments.match.gz")
+    if not keep_work_dir and ctx.confirm("Do you want to remove the working directory: '%s'?" % work_dir):
+        ctx.debug("Removing working directory: '%s'" % work_dir)
+        shutil.rmtree(work_dir, ignore_errors=True)
 
 if __name__ == '__main__':
     estimate()
