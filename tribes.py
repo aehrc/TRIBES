@@ -111,7 +111,7 @@ class TribesDir:
 @pipeline.option('--maf-min', required = False, default = 0.01, type=float, show_default=True,
         help='Min MAF to keep.')
 @pipeline.option('--ld-prune/--no-ld-prune', required = False, default = False, is_flag = True, show_default=True,
-        help='Peform ld pruning with R2 of 0.95 (?)')
+        help='Peform ld pruning with R2 of 0.95')
 @pipeline.option('--phase/--no-phase', required = False, default = True, is_flag = True, show_default=True,
         help='Peform phasing')
 @pipeline.option('--phase-with-ref/--phase-without-ref', required = False, default = True, is_flag = True, show_default=True,
