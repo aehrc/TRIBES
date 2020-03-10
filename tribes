@@ -7,7 +7,7 @@ from os import path
 import os
 from click_option_group import OptionGroup
 import shutil
-import subsystem
+import subprocess
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
 
@@ -134,7 +134,7 @@ class TribesDir:
         help='Answer yes to all prompts')
 @click.option('--verbose', required = False, default = False, is_flag=True, show_default=True,
         help='Be more verobose')
-@click.option('--snakemake', required = False, default = "", type=str, show_default=True,
+@click.option('--snakemake', required = False, default = "", type=str, show_default=False,
         help='Extra options to pass to snakemake.')
 
 def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, output,
