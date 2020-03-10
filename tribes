@@ -229,10 +229,12 @@ Please consider the following options: TBP""" % work_dir)
     # fail if config already exists
 
 
-    ctx.info("Runing snakemake in working dir: '%s' ...\n" %work_dir)
+    ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" %work_dir)
     exit_code = tribes.run_snakemake(snakemake)
     if exit_code != 0:
         ctx.error("Snakemake execution failed with exit code: %s." % exit_code)
+
+    ctx.info("\n... `snakemake` sucessful.\n")
 
     estimate_filename = output + "-estimate.csv"
     ctx.info("Saving relatedness degree estimates to: '%s'." % estimate_filename)
