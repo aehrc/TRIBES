@@ -10,8 +10,8 @@ import shutil
 import subprocess
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
-
 ROOT_DIR = path.abspath(path.dirname(__file__))
+VCF_GZ_EXT = '.vcf.gz'
 
 
 class ApplicationError(Exception):
@@ -44,11 +44,6 @@ pipeline = OptionGroup('PIPELINE', help='Pipeline configuation\n')
 io = OptionGroup('INPUT/OUTPUT', help='Input/output configuration\n')
 ctl = OptionGroup('CONTROL', help='Execution control\n')
 
-#@click.group()
-#@click.option('--noop', help='Name to greet', is_flag=True)
-#@click.option('--verbose', help='Name to greet', is_flag=True)
-#def cli(noop, verbose):
-#    pass
 
 class Context:
     def __init__(self, yes, verbose):
@@ -87,9 +82,13 @@ def is_tribes_work_dir(dir_name):
 
 class TribesDir:
 
-    def __init__(self, work_dir, rel_sample):
+    def __init__(self, input_file, work_dir, config, rel_sample, output_estimate, output_segments):
+        self._input_file = input_file
         self._work_dir = work_dir
+        self._config = config
         self._rel_sample = rel_sample
+        self._output_estimate = output_estimate
+        self._output_segments = output_segments
 
 
     @property
@@ -102,7 +101,15 @@ class TribesDir:
     def is_workdir(self):
         return is_tribes_work_dir(self._work_dir)
 
-    def ensure_exits(self):
+    def clean(self, ctx):
+        if self.exists():
+            if self.is_workdir():
+                ctx.debug("Deletig working directory: '%s'." % self._work_dir)
+                shutil.rmtree(self._work_dir, ignore_errors=True)
+            else:
+                raise ApplicationError("Path '%s' exits but cannot be cleaned becasue is not a TRIBES workdir." % self._work_dir)
+
+    def _ensure_exits(self, ctx):
         if path.exists(self._work_dir) and not path.isdir(self._work_dir):
             raise ApplicationError("Path '%s' for workdir exits but is not a directory." % self._work_dir)
         if not path.isdir(self._work_dir):
@@ -111,19 +118,13 @@ class TribesDir:
                 token.write("TRIBES")
         elif self.is_workdir():
             pass
-            #ctx.debug("Using an existing working dir: '%s'" % self._work_dir)
+            ctx.debug("Using an existing working dir: '%s'" % self._work_dir)
         else:
             raise ApplicationError("The dir '%s' already exists but is not a `TRIBES` working directory." % self._work_dir)
 
-    def clean(self):
-        if self.exists():
-            if self.is_workdir():
-                shutil.rmtree(self._work_dir, ignore_errors=True)
-            else:
-                raise ApplicationError("Path '%s' exits but cannot be cleaned becasue is not a TRIBES workdir." % self._work_dir)
 
 
-    def write_config(self, ctx, config, force = False):
+    def _write_config(self, ctx, config, force = False):
         config_filename = path.join(self._work_dir, 'config.yaml')
 
         # check if the config exists in the working dir
@@ -145,7 +146,7 @@ Please consider the following options: TBP""" % self._work_dir)
             yaml.dump(config, cf, default_flow_style=False)
 
 
-    def link_input(self, input_file):
+    def _link_input(self, ctx, input_file):
         #TODO: change this to use base_sample
         workdir_input = path.join(self._work_dir, path.basename(input_file))
         if not path.exists(workdir_input):
@@ -157,17 +158,33 @@ Please consider the following options: TBP""" % self._work_dir)
             print(path.realpath(input_file))
             raise ApplicationError("The input file in workdir is not a link or points to a differnet location")
 
-    def run_snakemake(self, options=''):
+    def initialize(self, ctx, force=False):
+        self._ensure_exits(ctx)
+        self._write_config(ctx, self._config)
+        self._link_input(ctx, self._input_file)
+
+    def run_snakemake(self, ctx, options=''):
         #change to running with subprocess.run
-        return os.system("%s -d %s %s estimate_degree" % (path.join(ROOT_DIR,'tribes.snakemake'), 
-            self._work_dir, options))
+        cmd = "%s -d %s %s estimate_degree" % (path.join(ROOT_DIR,'tribes.snakemake'), 
+            self._work_dir, options)
+        ctx.debug("Running snakemake with cmd: '%s'." % cmd)
+        exit_code = os.system(cmd)
+        if exit_code != 0:
+            raise ApplicationError("Snakemake execution failed with exit code: %s." % exit_code)
 
-    def output_estimate(self, output_path):
-        shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD.csv"), output_path)
+    def _save_estimate(self, ctx, output_path):
+        work_estimate_path = path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD.csv")
+        ctx.debug("Saving degree estimate to: '%s' from: '%s'." % (output_path, work_estimate_path))
+        shutil.copy2(work_estimate_path, output_path)
 
-    def output_segments(self, output_path):
-        shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD-segments.match.gz"), output_path)
+    def _save_segments(self, ctx, output_path):
+        work_segments_path = path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD-segments.match.gz")
+        ctx.debug("Saving IBD segments to: '%s' from: '%s'." % (output_path, work_segments_path))
+        shutil.copy2(work_segments_path, output_path)
 
+    def save_outputs(self, ctx):
+        self._output_estimate and self._save_estimate(ctx, self._output_estimate)
+        self._output_segments and self._save_segments(ctx, self._output_segments)
 
 class TribesPipeline():
     def __init__(self, base_sample, steps, config):
@@ -246,9 +263,6 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
     """
 
     ctx = Context(yes, verbose)
-
-    print("Root dir: %s" % ROOT_DIR)
-
     #TODO: Get actual version
     ctx.echo("TRIBES version: xxxxx")
     click.echo("Estimate .... to be provided")
@@ -259,7 +273,15 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
     for opt in sorted(params.items(), key=lambda x:x[0]):
         ctx.echo("\t%s=%s" % opt)
 
-    vcf_ext = '.vcf.gz'
+    if not vcf.endswith(VCF_GZ_EXT):
+        ctx.error("Input file: `%s` does not have the required extension of `.vcf.gz`." % vcf)
+    base_sample = path.basename(vcf)[0:-len(VCF_GZ_EXT)]
+    ctx.debug("Base sample name: %s" %base_sample)
+    if work_dir is None:
+        work_dir = path.join(path.dirname(vcf), '_workdir')
+    ctx.debug("Working dir is: '%s'." % work_dir)    
+
+
     errors = []
     vcf.endswith('.vcf.gz') or errors.append("input file: `%s` does not have the required extension of `.vcf.gz`" % vcf)
     path.isfile(vcf) or errors.append("input file: `%s` does not exists" % vcf)
@@ -270,8 +292,7 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
             print(error)
         sys.exit(1)
 
-    base_sample = path.basename(vcf)[0:-len(vcf_ext)]
-    ctx.debug("Base sample name: %s" %base_sample)
+    
     pipeline = _build_pipeline(base_sample, **params)
     ctx.echo(str(pipeline))
     rel_sample = pipeline.rel_sample
@@ -281,41 +302,18 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
         ref_dir = ref, 
         rel_true= '')
 
-    if work_dir is None:
-        work_dir = path.join(path.dirname(vcf), '_workdir')
-    ctx.debug("Working dir is: '%s'." % work_dir)    
-
     try:
-        tribes = TribesDir(work_dir, rel_sample)
-
+        tribes = TribesDir(vcf, work_dir, config, rel_sample, 
+            output + "-estimate.csv", output + "-segments.match.gz" if output_segments else None)
         if clean:
-            ctx.debug("Cleaning up working directory: '%s'." % tribes.work_dir)
-            tribes.clean()
-
-        tribes.ensure_exits()
-        tribes.write_config(ctx, config, force)
-        tribes.link_input(vcf)
- 
-        ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" %work_dir)
-        exit_code = tribes.run_snakemake(snakemake)
-        if exit_code != 0:
-            ctx.error("Snakemake execution failed with exit code: %s." % exit_code)
-
+            tribes.clean(ctx)
+        tribes.initialize(ctx)
+        ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" % work_dir)
+        tribes.run_snakemake(ctx, snakemake)
         ctx.info("\n... `snakemake` sucessful.\n")
-
-        estimate_filename = output + "-estimate.csv"
-        ctx.info("Saving relatedness degree estimates to: '%s'." % estimate_filename)
-        tribes.output_estimate(estimate_filename)
-
-        if output_segments:
-            segments_filename = output + "-segments.match.gz"
-            ctx.info("Saving IBD segments to: '%s'." % segments_filename)
-            tribes.output_segments(segments_filename)
-
+        tribes.save_outputs(ctx)
         if delete_work_dir and ctx.confirm("Do you want to remove the working directory: '%s'?" % work_dir):
-            ctx.info("Removing working directory: '%s'." % work_dir)
-            tribes.clean()
-
+            tribes.clean(ctx)
         ctx.info("Done.")
     except ApplicationError as e:
         ctx.error(e.msg)
