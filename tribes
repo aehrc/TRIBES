@@ -90,7 +90,6 @@ class TribesDir:
         self._output_estimate = output_estimate
         self._output_segments = output_segments
 
-
     @property
     def work_dir(self):
         return self._work_dir
@@ -104,8 +103,9 @@ class TribesDir:
     def clean(self, ctx):
         if self.exists():
             if self.is_workdir():
-                ctx.debug("Deletig working directory: '%s'." % self._work_dir)
-                shutil.rmtree(self._work_dir, ignore_errors=True)
+                if ctx.confirm("Do you want to remove the working directory: '%s'?" % self._work_dir):
+                    ctx.debug("Deletig working directory: '%s'." % self._work_dir)
+                    shutil.rmtree(self._work_dir, ignore_errors=True)
             else:
                 raise ApplicationError("Path '%s' exits but cannot be cleaned becasue is not a TRIBES workdir." % self._work_dir)
 
@@ -160,7 +160,7 @@ Please consider the following options: TBP""" % self._work_dir)
 
     def initialize(self, ctx, force=False):
         self._ensure_exits(ctx)
-        self._write_config(ctx, self._config)
+        self._write_config(ctx, self._config, force)
         self._link_input(ctx, self._input_file)
 
     def run_snakemake(self, ctx, options=''):
@@ -186,21 +186,10 @@ Please consider the following options: TBP""" % self._work_dir)
         self._output_estimate and self._save_estimate(ctx, self._output_estimate)
         self._output_segments and self._save_segments(ctx, self._output_segments)
 
-class TribesPipeline():
-    def __init__(self, base_sample, steps, config):
-        self.base_sample = base_sample
-        self.steps = steps
-        self.config = config
 
-    @property
-    def rel_sample(self):
-        return  "_".join([self.base_sample] + self.steps)
 
-    def __str__(self):
-        return "Tribes Pipeline\n\tBase sample: '%s'\n\tPreprocessing: %s\n\tConfig: %s" % (self.base_sample, self.steps, self.config)
 
-    
-def _build_pipeline(base_sample, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, **kwargs):
+def _build_pipeline( bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, **kwargs):
     config = dict()
     process_steps = []
     qc and ('QC' |cons| process_steps) and True # (config['qc_filter'] = qc_filter)
@@ -210,11 +199,55 @@ def _build_pipeline(base_sample, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, 
     maf and ("MAF@%s" % maf_min) |cons| process_steps
     ld_prune and 'LD' |cons| process_steps
     phase and ('RPH' if phase_with_ref else 'PH') |cons| process_steps
-    return TribesPipeline(base_sample, process_steps, config)
+    return process_steps, config
+
+
+class TribesPipeline():
+
+    @classmethod
+    def create(cls, input_vcf, ref_dir, base_sample, output_estimate = None, output_segments = None, **kwargs):
+        process_steps, config = _build_pipeline(**kwargs)
+        return TribesPipeline(input_vcf, ref_dir, base_sample, process_steps, config, output_estimate, output_segments)
+
+    def __init__(self, input_vcf, ref_dir, base_sample, steps, config, output_estimate = None, output_segments = None):
+        self.input_vcf = input_vcf
+        self.ref_dir = ref_dir
+        self.base_sample = base_sample
+        self.steps = steps
+        self.config = config
+        self.output_estimate = output_estimate
+        self.output_segments = output_segments
+
+    @property
+    def rel_sample(self):
+        return  "_".join([self.base_sample] + self.steps)
+
+
+    def validate(self):
+        errors = []
+        self.input_vcf.endswith('.vcf.gz') or errors.append("input file: `%s` does not have the required extension of `.vcf.gz`" % self.input_vcf)
+        path.isfile(self.input_vcf) or errors.append("input file: `%s` does not exists" % self.input_vcf)
+        path.isdir(self.ref_dir ) or errors.append("reference data dir `%s` does not exists" % self.ref_dir)
+        return errors
+
+
+    def create_executor(self, work_dir):
+        pipeline_config = dict(rel_sample = self.rel_sample, ref_dir = self.ref_dir, 
+            rel_true= '', ** self.config)
+        return TribesDir(self.input_vcf, work_dir, pipeline_config, self.rel_sample,
+            self.output_estimate, self.output_segments)
+
+    def __str__(self):
+        return """Tribes Pipeline:
+    VCF input: '%s'
+    Ref data dir: '%s'
+    Base sample: '%s'
+    Preprocessing: %s
+    Config: %s
+    Relatedness output: %s
+    Segments output: %s""" % (self.input_vcf, self.ref_dir, self.base_sample, self.steps, self.config, 
+        self.output_estimate, self.output_segments)
     
-
-
-
 @click.command()
 @io.option('--vcf', required = True, default = None, type=str)
 @io.option('--ref', required = True, default = None, type=str, 
@@ -254,11 +287,11 @@ def _build_pipeline(base_sample, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, 
         help='Answer yes to all prompts')
 @click.option('--verbose', required = False, default = False, is_flag=True, show_default=True,
         help='Be more verobose')
-@click.option('--snakemake', required = False, default = "", type=str, show_default=False,
+@click.option('--snakemake-opts', required = False, default = "", type=str, show_default=False,
         help='Extra options to pass to snakemake.')
 
-def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, output,
-    output_segments, work_dir, delete_work_dir, yes, clean, force, verbose,snakemake, **flags):
+def estimate(vcf, ref, output,
+    output_segments, work_dir, delete_work_dir, yes, clean, force, verbose, snakemake_opts, **pipeline_opts):
     """ Estimate relatedness using IBD0
     """
 
@@ -280,39 +313,26 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
     if work_dir is None:
         work_dir = path.join(path.dirname(vcf), '_workdir')
     ctx.debug("Working dir is: '%s'." % work_dir)    
-
-
-    errors = []
-    vcf.endswith('.vcf.gz') or errors.append("input file: `%s` does not have the required extension of `.vcf.gz`" % vcf)
-    path.isfile(vcf) or errors.append("input file: `%s` does not exists" % vcf)
-    path.isdir(ref) or errors.append("reference data dir `%s` does not exists" % ref)
-
+    pipeline = TribesPipeline.create(vcf, ref, base_sample, 
+        output + "-estimate.csv", output + "-segments.match.gz" if output_segments else None,
+        **pipeline_opts)
+    errors = pipeline.validate()
     if errors:
         for error in errors:
             print(error)
         sys.exit(1)
 
-    
-    pipeline = _build_pipeline(base_sample, **params)
     ctx.echo(str(pipeline))
-    rel_sample = pipeline.rel_sample
-    ctx.debug("Rel sample: '%s'." % rel_sample)
-
-    config = dict(rel_sample = rel_sample, 
-        ref_dir = ref, 
-        rel_true= '')
-
     try:
-        tribes = TribesDir(vcf, work_dir, config, rel_sample, 
-            output + "-estimate.csv", output + "-segments.match.gz" if output_segments else None)
+        tribes = pipeline.create_executor(work_dir)
         if clean:
             tribes.clean(ctx)
-        tribes.initialize(ctx)
+        tribes.initialize(ctx, force)
         ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" % work_dir)
-        tribes.run_snakemake(ctx, snakemake)
+        tribes.run_snakemake(ctx, snakemake_opts)
         ctx.info("\n... `snakemake` sucessful.\n")
         tribes.save_outputs(ctx)
-        if delete_work_dir and ctx.confirm("Do you want to remove the working directory: '%s'?" % work_dir):
+        if delete_work_dir:
             tribes.clean(ctx)
         ctx.info("Done.")
     except ApplicationError as e:
