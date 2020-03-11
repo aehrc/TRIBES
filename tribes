@@ -11,6 +11,14 @@ import subprocess
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
 
+ROOT_DIR = path.abspath(path.dirname(__file__))
+
+
+class ApplicationError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
 class Infix:
     def __init__(self, function):
         self.function = function
@@ -83,15 +91,110 @@ class TribesDir:
         self._work_dir = work_dir
         self._rel_sample = rel_sample
 
+
+    @property
+    def work_dir(self):
+        return self._work_dir
+    
+    def exists(self):
+        return path.exists(self._work_dir)
+
+    def is_workdir(self):
+        return is_tribes_work_dir(self._work_dir)
+
+    def ensure_exits(self):
+        if path.exists(self._work_dir) and not path.isdir(self._work_dir):
+            raise ApplicationError("Path '%s' for workdir exits but is not a directory." % self._work_dir)
+        if not path.isdir(self._work_dir):
+            os.makedirs(self._work_dir)
+            with open(path.join(self._work_dir,'.tribes'), 'w') as token:
+                token.write("TRIBES")
+        elif self.is_workdir():
+            pass
+            #ctx.debug("Using an existing working dir: '%s'" % self._work_dir)
+        else:
+            raise ApplicationError("The dir '%s' already exists but is not a `TRIBES` working directory." % self._work_dir)
+
+    def clean(self):
+        if self.exists():
+            if self.is_workdir():
+                shutil.rmtree(self._work_dir, ignore_errors=True)
+            else:
+                raise ApplicationError("Path '%s' exits but cannot be cleaned becasue is not a TRIBES workdir." % self._work_dir)
+
+
+    def write_config(self, ctx, config, force = False):
+        config_filename = path.join(self._work_dir, 'config.yaml')
+
+        # check if the config exists in the working dir
+        # and if yes than if it matches 
+        if path.isfile(config_filename):
+            ctx.debug("There is an existing config file at: '%s'" % config_filename)
+            with open(config_filename, 'r') as ef:
+                existing_config = yaml.load(ef, Loader=yaml.FullLoader)
+            ctx.debug("The existing config is: %s" % existing_config)
+            if existing_config != config:
+                if not force:
+                    raise ApplicationError("""The existing configuration in working directory: '%s' does not match the current set of options.
+Please consider the following options: TBP""" % self._work_dir)
+                else:
+                    ctx.warn("Forcing excution unclean directory despite mismatching options. The results mayby incorrect")
+
+        ctx.debug("Writing configuration: %s to config file %s" % (config, config_filename))
+        with open(config_filename, "w") as cf:
+            yaml.dump(config, cf, default_flow_style=False)
+
+
+    def link_input(self, input_file):
+        #TODO: change this to use base_sample
+        workdir_input = path.join(self._work_dir, path.basename(input_file))
+        if not path.exists(workdir_input):
+            #Debubg linking file
+            os.symlink(input_file, workdir_input)
+        elif not path.islink(workdir_input) or (path.realpath(workdir_input) != path.realpath(input_file)):
+            print(workdir_input, path.islink(workdir_input))
+            print(path.realpath(workdir_input))
+            print(path.realpath(input_file))
+            raise ApplicationError("The input file in workdir is not a link or points to a differnet location")
+
     def run_snakemake(self, options=''):
         #change to running with subprocess.run
-        return os.system("./tribes.snakemake -d %s %s estimate_degree" % (self._work_dir, options))
+        return os.system("%s -d %s %s estimate_degree" % (path.join(ROOT_DIR,'tribes.snakemake'), 
+            self._work_dir, options))
 
     def output_estimate(self, output_path):
         shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD.csv"), output_path)
 
     def output_segments(self, output_path):
         shutil.copy2(path.join(self._work_dir, self._rel_sample + "_GRM-allchr_FPI_IBD-segments.match.gz"), output_path)
+
+
+class TribesPipeline():
+    def __init__(self, base_sample, steps, config):
+        self.base_sample = base_sample
+        self.steps = steps
+        self.config = config
+
+    @property
+    def rel_sample(self):
+        return  "_".join([self.base_sample] + self.steps)
+
+    def __str__(self):
+        return "Tribes Pipeline\n\tBase sample: '%s'\n\tPreprocessing: %s\n\tConfig: %s" % (self.base_sample, self.steps, self.config)
+
+    
+def _build_pipeline(base_sample, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, **kwargs):
+    config = dict()
+    process_steps = []
+    qc and ('QC' |cons| process_steps) and True # (config['qc_filter'] = qc_filter)
+    (bi_snp and non_missing and 'BiSnpNM' |cons| process_steps) or \
+        (bi_snp and 'BiSnp' |cons| process_steps) or \
+        (non_missing and 'NM' |cons| process_steps) 
+    maf and ("MAF@%s" % maf_min) |cons| process_steps
+    ld_prune and 'LD' |cons| process_steps
+    phase and ('RPH' if phase_with_ref else 'PH') |cons| process_steps
+    return TribesPipeline(base_sample, process_steps, config)
+    
 
 
 
@@ -141,11 +244,14 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
     output_segments, work_dir, delete_work_dir, yes, clean, force, verbose,snakemake, **flags):
     """ Estimate relatedness using IBD0
     """
+
     ctx = Context(yes, verbose)
+
+    print("Root dir: %s" % ROOT_DIR)
 
     #TODO: Get actual version
     ctx.echo("TRIBES version: xxxxx")
-    click.echo("Estimate")
+    click.echo("Estimate .... to be provided")
 
     params = click.get_current_context().params
     # Echo parameters
@@ -164,94 +270,58 @@ def estimate(vcf, ref, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missin
             print(error)
         sys.exit(1)
 
-
-    if work_dir is None:
-        work_dir = path.join(path.dirname(vcf), '_workdir')
-
-    ctx.debug("Working dir is: %s" % work_dir)    
-
-    if not path.isdir(work_dir):
-        os.makedirs(work_dir)
-        with open(path.join(work_dir,'.tribes'), 'w') as token:
-            token.write("TRIBES")
-    elif is_tribes_work_dir(work_dir):
-        ctx.debug("Using an existing working dir: '%s'" % work_dir)
-    else:
-        ctx.error("The dir '%s' already exists but is not a `TRIBES` working directory." % work_dir)
-
-    if not path.islink(path.join(work_dir, path.basename(vcf))):
-        os.symlink(vcf, path.join(work_dir, path.basename(vcf)))
-
-
     base_sample = path.basename(vcf)[0:-len(vcf_ext)]
     ctx.debug("Base sample name: %s" %base_sample)
-
-
-    config = dict()
-    process_steps = [base_sample]
-    qc and ('QC' |cons| process_steps) and True # (config['qc_filter'] = qc_filter)
-    (bi_snp and non_missing and 'BiSnpNM' |cons| process_steps) or \
-        (bi_snp and 'BiSnp' |cons| process_steps) or \
-        (non_missing and 'NM' |cons| process_steps) 
-    maf and ("MAF@%s" % maf_min) |cons| process_steps
-    ld_prune and 'LD' |cons| process_steps
-    phase and ('RPH' if phase_with_ref else 'PH') |cons| process_steps
-
-
-    rel_sample = "_".join(process_steps)
-
-    tribes = TribesDir(work_dir, rel_sample)
-    ctx.debug("Rel sample: %s" % rel_sample)
-    ctx.debug("XConfig: %s" % config)
+    pipeline = _build_pipeline(base_sample, **params)
+    ctx.echo(str(pipeline))
+    rel_sample = pipeline.rel_sample
+    ctx.debug("Rel sample: '%s'." % rel_sample)
 
     config = dict(rel_sample = rel_sample, 
         ref_dir = ref, 
         rel_true= '')
-    config_filename = path.join(work_dir, 'config.yaml')
 
-    # check if the config exists in the working dir
-    # and if yes than if it matches 
-    if path.isfile(config_filename):
-        ctx.debug("There is an existing config file at: '%s'" % config_filename)
-        with open(config_filename, 'r') as ef:
-            existing_config = yaml.load(ef, Loader=yaml.FullLoader)
-        ctx.debug("The existing config is: %s" % existing_config)
-        if existing_config != config:
-            if not force:
-                ctx.error("""The existing configuration in working directory: '%s' does not match the current set of options.
-Please consider the following options: TBP""" % work_dir)
-            else:
-                ctx.warn("Forcing excution unclean directory despite mismatching options. The results mayby incorrect")
+    if work_dir is None:
+        work_dir = path.join(path.dirname(vcf), '_workdir')
+    ctx.debug("Working dir is: '%s'." % work_dir)    
 
-    ctx.debug("Writing configuration: %s to config file %s" % (config, config_filename))
-    with open(config_filename, "w") as cf:
-        yaml.dump(config, cf, default_flow_style=False)
-    # fail if config already exists
+    try:
+        tribes = TribesDir(work_dir, rel_sample)
 
+        if clean:
+            ctx.debug("Cleaning up working directory: '%s'." % tribes.work_dir)
+            tribes.clean()
 
-    ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" %work_dir)
-    exit_code = tribes.run_snakemake(snakemake)
-    if exit_code != 0:
-        ctx.error("Snakemake execution failed with exit code: %s." % exit_code)
+        tribes.ensure_exits()
+        tribes.write_config(ctx, config, force)
+        tribes.link_input(vcf)
+ 
+        ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" %work_dir)
+        exit_code = tribes.run_snakemake(snakemake)
+        if exit_code != 0:
+            ctx.error("Snakemake execution failed with exit code: %s." % exit_code)
 
-    ctx.info("\n... `snakemake` sucessful.\n")
+        ctx.info("\n... `snakemake` sucessful.\n")
 
-    estimate_filename = output + "-estimate.csv"
-    ctx.info("Saving relatedness degree estimates to: '%s'." % estimate_filename)
-    tribes.output_estimate(estimate_filename)
+        estimate_filename = output + "-estimate.csv"
+        ctx.info("Saving relatedness degree estimates to: '%s'." % estimate_filename)
+        tribes.output_estimate(estimate_filename)
 
-    if output_segments:
-        segments_filename = output + "-segments.match.gz"
-        ctx.info("Saving IBD segments to: '%s'." % segments_filename)
-        tribes.output_segments(segments_filename)
+        if output_segments:
+            segments_filename = output + "-segments.match.gz"
+            ctx.info("Saving IBD segments to: '%s'." % segments_filename)
+            tribes.output_segments(segments_filename)
 
-    if delete_work_dir and ctx.confirm("Do you want to remove the working directory: '%s'?" % work_dir):
-        ctx.info("Removing working directory: '%s'." % work_dir)
-        shutil.rmtree(work_dir, ignore_errors=True)
+        if delete_work_dir and ctx.confirm("Do you want to remove the working directory: '%s'?" % work_dir):
+            ctx.info("Removing working directory: '%s'." % work_dir)
+            tribes.clean()
 
-    ctx.info("Done.")
+        ctx.info("Done.")
+    except ApplicationError as e:
+        ctx.error(e.msg)
 
 if __name__ == '__main__':
+    print(__file__)
     estimate()
 
 
