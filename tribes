@@ -39,12 +39,6 @@ def fcons(h,t):
     return t
 cons = Infix(fcons)
 
-
-pipeline = OptionGroup('PIPELINE', help='Pipeline configuation\n')
-io = OptionGroup('INPUT/OUTPUT', help='Input/output configuration\n')
-ctl = OptionGroup('CONTROL', help='Execution control\n')
-
-
 class Context:
     def __init__(self, yes, verbose):
         self._yes = yes
@@ -75,11 +69,6 @@ class Context:
         else:
             return click.confirm(msg)
 
-
-def is_tribes_work_dir(dir_name):
-    return path.isdir(dir_name) and path.isfile(path.join(dir_name,'.tribes'))
-
-
 class TribesDir:
 
     def __init__(self, input_file, work_dir, config, rel_sample, output_estimate, output_segments):
@@ -98,7 +87,7 @@ class TribesDir:
         return path.exists(self._work_dir)
 
     def is_workdir(self):
-        return is_tribes_work_dir(self._work_dir)
+        return path.isdir(self._work_dir) and path.isfile(path.join(self._work_dir,'.tribes'))
 
     def clean(self, ctx):
         if self.exists():
@@ -186,27 +175,24 @@ Please consider the following options: TBP""" % self._work_dir)
         self._output_estimate and self._save_estimate(ctx, self._output_estimate)
         self._output_segments and self._save_segments(ctx, self._output_segments)
 
-
-
-
-def _build_pipeline( bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, **kwargs):
-    config = dict()
-    process_steps = []
-    qc and ('QC' |cons| process_steps) and True # (config['qc_filter'] = qc_filter)
-    (bi_snp and non_missing and 'BiSnpNM' |cons| process_steps) or \
-        (bi_snp and 'BiSnp' |cons| process_steps) or \
-        (non_missing and 'NM' |cons| process_steps) 
-    maf and ("MAF@%s" % maf_min) |cons| process_steps
-    ld_prune and 'LD' |cons| process_steps
-    phase and ('RPH' if phase_with_ref else 'PH') |cons| process_steps
-    return process_steps, config
-
-
 class TribesPipeline():
 
     @classmethod
+    def _build_pipeline(cls, bi_snp, qc, qc_filter, maf, maf_min, ld_prune, non_missing, phase, phase_with_ref, **kwargs):
+        config = dict()
+        process_steps = []
+        qc and ('QC' |cons| process_steps) and True # (config['qc_filter'] = qc_filter)
+        (bi_snp and non_missing and 'BiSnpNM' |cons| process_steps) or \
+            (bi_snp and 'BiSnp' |cons| process_steps) or \
+            (non_missing and 'NM' |cons| process_steps) 
+        maf and ("MAF@%s" % maf_min) |cons| process_steps
+        ld_prune and 'LD' |cons| process_steps
+        phase and ('RPH' if phase_with_ref else 'PH') |cons| process_steps
+        return process_steps, config
+
+    @classmethod
     def create(cls, input_vcf, ref_dir, base_sample, output_estimate = None, output_segments = None, **kwargs):
-        process_steps, config = _build_pipeline(**kwargs)
+        process_steps, config = TribesPipeline._build_pipeline(**kwargs)
         return TribesPipeline(input_vcf, ref_dir, base_sample, process_steps, config, output_estimate, output_segments)
 
     def __init__(self, input_vcf, ref_dir, base_sample, steps, config, output_estimate = None, output_segments = None):
@@ -247,7 +233,17 @@ class TribesPipeline():
     Relatedness output: %s
     Segments output: %s""" % (self.input_vcf, self.ref_dir, self.base_sample, self.steps, self.config, 
         self.output_estimate, self.output_segments)
-    
+
+
+#
+# The actual command line interface
+#
+
+pipeline = OptionGroup('PIPELINE', help='Pipeline configuation\n')
+io = OptionGroup('INPUT/OUTPUT', help='Input/output configuration\n')
+ctl = OptionGroup('CONTROL', help='Execution control\n')
+
+
 @click.command()
 @io.option('--vcf', required = True, default = None, type=str)
 @io.option('--ref', required = True, default = None, type=str, 
@@ -298,31 +294,26 @@ def estimate(vcf, ref, output,
     ctx = Context(yes, verbose)
     #TODO: Get actual version
     ctx.echo("TRIBES version: xxxxx")
-    click.echo("Estimate .... to be provided")
+    ctx.echo("Estimate .... to be provided")
 
     params = click.get_current_context().params
     # Echo parameters
-    click.echo("Options in effect:")
-    for opt in sorted(params.items(), key=lambda x:x[0]):
-        ctx.echo("\t%s=%s" % opt)
+    ctx.debug("Options in effect: %s." % params)
 
     if not vcf.endswith(VCF_GZ_EXT):
         ctx.error("Input file: `%s` does not have the required extension of `.vcf.gz`." % vcf)
     base_sample = path.basename(vcf)[0:-len(VCF_GZ_EXT)]
     ctx.debug("Base sample name: %s" %base_sample)
-    if work_dir is None:
-        work_dir = path.join(path.dirname(vcf), '_workdir')
-    ctx.debug("Working dir is: '%s'." % work_dir)    
     pipeline = TribesPipeline.create(vcf, ref, base_sample, 
         output + "-estimate.csv", output + "-segments.match.gz" if output_segments else None,
         **pipeline_opts)
     errors = pipeline.validate()
-    if errors:
-        for error in errors:
-            print(error)
-        sys.exit(1)
+    errors and ctx.error("\n- ".join(["There were errors in pipeline validation:"] + errors))
 
     ctx.echo(str(pipeline))
+    if work_dir is None:
+        work_dir = path.join(path.dirname(vcf), '_workdir')
+    ctx.echo("Working dir is: '%s'." % work_dir)    
     try:
         tribes = pipeline.create_executor(work_dir)
         if clean:
