@@ -30,5 +30,5 @@ Watch a short video introducing *TRIBES* and its applications
 [![TRIBES video](docs/assets/tribes_video.jpg)](https://www.thinkable.org/submission_entries/l3jw6v8G)
 
 
-See [documentation](https://tribes.readthedocs.io/en/latest/index.html) for more information on installing and using TRIBES
+See [documentation](https://tribes.readthedocs.io/) for more information on installing and using TRIBES
 
