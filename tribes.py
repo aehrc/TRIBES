@@ -8,6 +8,7 @@ import os
 from click_option_group import OptionGroup
 import shutil
 import subprocess
+from _version import __version__ 
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
 ROOT_DIR = path.abspath(path.dirname(__file__))
@@ -220,7 +221,8 @@ class TribesPipeline():
     def create_executor(self, work_dir):
         pipeline_config = dict(rel_sample = self.rel_sample, ref_dir = self.ref_dir, 
             rel_true= '', ** self.config)
-        return TribesDir(self.input_vcf, work_dir, pipeline_config, self.rel_sample,
+        pipeline_config_hash = hash(str(pipeline_config))
+        return TribesDir(self.input_vcf, work_dir.format(pipeline_config_hash), pipeline_config, self.rel_sample,
             self.output_estimate, self.output_segments)
 
     def __str__(self):
@@ -277,8 +279,8 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
         help='Force execution on uncleaned directory')
 @ctl.option('--work-dir', required = False, default = None, type=str, show_default=True,
         help='Working directory.')
-@ctl.option('--delete-work-dir', required = False, default = False, is_flag=True, show_default=True,
-        help='Delete the working directory on sucessful execution.')
+@ctl.option('--keep-work-dir', required = False, default = False, is_flag=True, show_default=True,
+        help='Keeps the working directory after sucessful execution.')
 @click.option('--yes', required = False, default = False, is_flag=True, show_default=True,
         help='Answer yes to all prompts')
 @click.option('--verbose', required = False, default = False, is_flag=True, show_default=True,
@@ -287,14 +289,14 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
         help='Extra options to pass to snakemake.')
 
 def estimate(vcf, ref, output,
-    output_segments, work_dir, delete_work_dir, yes, clean, force, verbose, snakemake_opts, **pipeline_opts):
+    output_segments, work_dir, keep_work_dir, yes, clean, force, verbose, snakemake_opts, **pipeline_opts):
     """ Estimate relatedness using IBD0
     """
 
     ctx = Context(yes, verbose)
-    #TODO: Get actual version
-    ctx.echo("TRIBES version: xxxxx")
-    ctx.echo("Estimate .... to be provided")
+    ctx.echo("TRIBES version: %s\n" % __version__)
+
+    ctx.echo("Estimating relatedness using IBD0.")
 
     params = click.get_current_context().params
     # Echo parameters
@@ -312,18 +314,19 @@ def estimate(vcf, ref, output,
 
     ctx.echo(str(pipeline))
     if work_dir is None:
-        work_dir = path.join(path.dirname(vcf), '_workdir')
-    ctx.echo("Working dir is: '%s'." % work_dir)    
+        work_dir = path.join(path.dirname(vcf), '_tribes_{0}')
+        ctx.debug("Defaulting working dir to: '%s'" % work_dir)
     try:
         tribes = pipeline.create_executor(work_dir)
+        ctx.echo("Working dir is: '%s'." % tribes.work_dir)    
         if clean:
             tribes.clean(ctx)
         tribes.initialize(ctx, force)
-        ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" % work_dir)
+        ctx.info("\nRuning `snakemake` in working dir: '%s' ...\n" % tribes.work_dir)
         tribes.run_snakemake(ctx, snakemake_opts)
         ctx.info("\n... `snakemake` sucessful.\n")
         tribes.save_outputs(ctx)
-        if delete_work_dir:
+        if not keep_work_dir:
             tribes.clean(ctx)
         ctx.info("Done.")
     except ApplicationError as e:
