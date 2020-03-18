@@ -24,7 +24,7 @@ access to both, e.g:
 
 ::
 
-    docker -it --rm -v <path-to-ref-data>:<path-to-ref-data> -v <path-to-data>:<path-to-data> docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
+    docker run -it --rm -v <path-to-ref-data>:<path-to-ref-data> -v <path-to-data>:<path-to-data> docker.io/piotrszul/tribes -d <path-to-data> <other_options> ...
 
 When running with ``singularity`` this may not be need if the volumes
 with data and reference data are mounted as per configuration. One
