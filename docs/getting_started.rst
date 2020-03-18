@@ -41,7 +41,7 @@ Download and uncompress refecence data (1.2 GB)
 
 ::
 
-    wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/reference/1.0/REF_G1K-EUR_0.001.tar.gz
+    wget https://d3o0p4nu4e38rq.cloudfront.net/downloads/reference/1.0/REF_G1K-EUR_0.001.tar.gz
     tar -xzf REF_G1K-EUR_0.001.tar.gz
     rm REF_G1K-EUR_0.001.tar.gz  (optionally)
 
@@ -53,7 +53,7 @@ Download and uncompress example data (390 MB)
 
 ::
 
-    wget https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.2/TFCeu.tar.gz
+    wget https://d3o0p4nu4e38rq.cloudfront.net/downloads/examples/0.2/TFCeu.tar.gz
     tar -xzf TFCeu.tar.gz
     rm TFCeu.tar.gz  (optionally)
 

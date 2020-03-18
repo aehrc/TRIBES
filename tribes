@@ -4,15 +4,14 @@ PWD="$(cd `dirname $0`; pwd)"
 
 version()
 {
-   grep "VERSION=" "${PWD}/Snakefile"
+   VERSION=`sed -n 's/^.*="\(.*\)"$/\1/p' ${PWD}/_version.py`
+   echo "${VERSION}"
 }
 
 usage ()
 { 
-   echo ''
    echo 'TRIBES is a `snakemake` based IBD detection and relatedness estimation pipeline.'
    echo 'For more information please check: https://github.com/aehrc/TRIBES.'
-   echo "$(version)" 
    echo ''
    echo 'Usage:'
    echo '    tribes -d <working dir> <other-snakemake-options> (estimate_degree|estimate_degree_vs_true)'
@@ -21,6 +20,8 @@ usage ()
    echo '    tribes --help'    
    exit 1
 }
+
+echo "TRIBES version: $(version)"
 
 if [[ $# == 0||  "$1" == "-h" ]];  then
     usage

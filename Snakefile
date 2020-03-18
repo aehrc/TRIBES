@@ -1,6 +1,7 @@
 # Condiguration
 
-VERSION="0.2.0"
+include:  "_version.py"
+VERSION=__version__
 singularity: "docker://docker.io/piotrszul/tribes:%s" % VERSION 
 
 configfile: "config.yaml"

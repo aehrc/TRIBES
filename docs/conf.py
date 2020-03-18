@@ -14,7 +14,10 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-
+import os
+RPWD=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+with open(os.path.join(RPWD,'_version.py'),'r') as f:
+    exec(f.read())
 # -- Project information -----------------------------------------------------
 
 project = 'TRIBES'
@@ -22,7 +25,7 @@ copyright = '2019,CSIRO Australia'
 author = 'Natalie Tribes, Piotr Szul'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -55,3 +58,11 @@ html_static_path = ['_static', 'assets']
 
 
 master_doc = 'index'
+
+version=release
+
+rst_epilog = """
+.. |version| replace:: ``{0}``
+.. |version_literal| replace:: ``{0}``
+.. |versioned_docker_literal| replace:: ``docker.io/piotrszul/tribes:{0}``
+""".format(version)

@@ -8,7 +8,7 @@ Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Location:
-https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/reference/1.0/REF\_G1K-EUR\_0.001.tar.gz
+https://d3o0p4nu4e38rq.cloudfront.net/downloads/reference/1.0/REF_G1K-EUR_0.001.tar.gz
 
 This is a reference dataset used for MAF filtering, LD pruning and
 phasing. It's based on the data from release 3 of `1000 Genomes
@@ -27,7 +27,7 @@ TrueFamily CEU (TFCeu)
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Location:
-https://s3-ap-southeast-2.amazonaws.com/csiro-tribes/downloads/examples/0.2/TFCeu.tar.gz
+https://d3o0p4nu4e38rq.cloudfront.net/downloads/examples/0.2/TFCeu.tar.gz
 
 This is synthetic dataset with simulated genotypes based on unrelated
 individuals from CEU population of `1000 Genomes
