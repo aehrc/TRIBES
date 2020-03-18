@@ -13,8 +13,8 @@ with:
 
     docker pull docker.io/piotrszul/tribes
 
-To use a specifc version e.g.: ``0.2.0` please use
-``docker.io/piotrszul/tribes:0.2.0`` as the docker image name.
+To use a specifc version e.g.: |version_literal|  please use
+|versioned_docker_literal| as the docker image name.
 
 It's an executable image with ``snakemake`` as an entry point.
 
