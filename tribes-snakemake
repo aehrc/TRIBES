@@ -8,6 +8,14 @@ version()
    echo "${VERSION}"
 }
 
+
+debug ()
+{
+  if [ -n "$DEBUG" ]; then
+    >&2 echo "$1"
+  fi
+}
+
 usage ()
 { 
    echo 'TRIBES is a `snakemake` based IBD detection and relatedness estimation pipeline.'
@@ -21,14 +29,14 @@ usage ()
    exit 1
 }
 
-echo "TRIBES version: $(version)"
+echo "Runing tribes-snakemake version: $(version)"
 
 if [[ $# == 0||  "$1" == "-h" ]];  then
     usage
 fi
 
 export PATH="${PWD}/scripts:${PATH}"
-echo "Path: ${PATH}"
+debug "Snakemake path: ${PATH}"
 
 RCFILE="$HOME/.tribesrc"
 
@@ -41,3 +49,4 @@ SNAKEMAKE="${SNAKEMAKE:-snakemake}"
 echo "Running with: ${SNAKEMAKE}"
 
 "${SNAKEMAKE}" -s "${PWD}/Snakefile" "$@"
+exit $?
