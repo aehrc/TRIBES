@@ -118,13 +118,17 @@ rule no_miss:
 # Apply quality filters
 #
 
+DEF_QC_FILTER = 'INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
+
 rule quality_checks:
     input:
         "{dir}/{file}.vcf.gz"
     output:
         "{dir}_QC/{file}.vcf.gz"
+    params:
+        qc_filter = config.get('qc_filter', DEF_QC_FILTER)
     shell:
-        "bcftools view -i 'INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1' -f PASS -Ou {input} | "
+        "bcftools view -i '{params.qc_filter}' -f PASS -Ou {input} | "
         "bcftools annotate -x INFO,FMT -Oz -o {output} -"
 
 
