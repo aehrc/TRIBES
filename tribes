@@ -11,7 +11,7 @@ import subprocess
 from _version import __version__ 
 import hashlib
 import time
-
+import multiprocessing
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
 ROOT_DIR = path.abspath(path.dirname(__file__))
@@ -161,12 +161,18 @@ does not point to input '%s'. (Points to: '%s' instead." %
         self._write_config(ctx, self._config, force)
         self._link_input(ctx, self._input_file)
 
-    def run_snakemake(self, ctx, options=''):
+    def run_snakemake(self, ctx, options='', cpus = None, strict = False):
         #change to running with subprocess.run
-        cmd = "%s -d %s %s estimate_degree" % (path.join(ROOT_DIR,'tribes-snakemake'), 
-            self._work_dir, options)
+        cmd_line = [path.join(ROOT_DIR,'tribes-snakemake'), '-d', self._work_dir] + options.split()
+        if not strict:
+            cmd_line.append('--nolock')
+            cmd_line.append('--rerun-incomplete')
+            cpus = (cpus or multiprocessing.cpu_count())
+            cpus and cmd_line.extend(['-j', str(cpus)])
+        cmd_line.append('estimate_degree')
+        cmd = " ".join(cmd_line)
         ctx.debug("Running snakemake with cmd: '%s'." % cmd)
-        result = subprocess.run(cmd.split(), stdout = None, stderr = None)
+        result = subprocess.run(cmd_line, stdout = None, stderr = None)
         exit_code = result.returncode
         if exit_code != 0:
             raise ApplicationError("Snakemake execution failed with exit code: %s." % exit_code)
@@ -288,21 +294,26 @@ ctl = OptionGroup('CONTROL', help='Execution control\n')
         help='Phase with reference')
 @ctl.option('--clean', required = False, default = False, is_flag = True, show_default=True,
         help='Clean the working directory before execution')
+@ctl.option('--cpus', required = False, default = None, type=int, show_default=False,
+        help='Number of CPUs to use.')
 @ctl.option('--force', required = False, default = False, is_flag = True, show_default=True,
-        help='Force execution on uncleaned directory')
+        help='ADVANCED: Force execution on uncleaned directory')
 @ctl.option('--work-dir', required = False, default = None, type=str, show_default=True,
-        help='Working directory.')
+        help='ADVANCED: Working directory to use.')
 @ctl.option('--keep-work-dir', required = False, default = False, is_flag=True, show_default=True,
-        help='Keeps the working directory after sucessful execution.')
+        help='ADVANCED: Keeps the working directory after sucessful execution.')
+@ctl.option('--snakemake-opts', required = False, default = "", type=str, show_default=False,
+        help='ADVANCED: Extra options to pass to snakemake.')
+@ctl.option('--snakemake-strict', required = False, default = False, is_flag=True, show_default=True,
+        help='ADVANCED: Do not pass any additional options to snakemake.')
 @click.option('--yes', required = False, default = False, is_flag=True, show_default=True,
         help='Answer yes to all prompts')
 @click.option('--verbose', required = False, default = False, is_flag=True, show_default=True,
         help='Be more verobose')
-@click.option('--snakemake-opts', required = False, default = "", type=str, show_default=False,
-        help='Extra options to pass to snakemake.')
 
 def estimate(vcf, ref, output,
-    output_segments, work_dir, keep_work_dir, yes, clean, force, verbose, snakemake_opts, **pipeline_opts):
+    output_segments, work_dir, keep_work_dir, yes, clean, force, verbose, snakemake_opts,
+        snakemake_strict, cpus, **pipeline_opts):
     """ Estimate relatedness using IBD0
     """
     tribes = None
@@ -337,7 +348,7 @@ def estimate(vcf, ref, output,
             tribes.clean(ctx)
         tribes.initialize(ctx, force)
         ctx.info("\nRuning `tribes-snakemake` in working dir: '%s' ...\n" % tribes.work_dir)
-        tribes.run_snakemake(ctx, snakemake_opts)
+        tribes.run_snakemake(ctx, snakemake_opts, cpus, strict = snakemake_strict)
         ctx.info("\n... `tribes-snakemake` sucessful.\n")
         tribes.save_outputs(ctx)
         if not keep_work_dir:
