@@ -37,7 +37,7 @@ if [ -e "$JAVA_HOME/bin/java" ]; then
 	JAVA="$JAVA_HOME/bin/java"
 fi
 
-DEFAULT_JAVA_OPTS="-Xss5m -Xms1g -Xmx1g"
+DEFAULT_JAVA_OPTS="-Xss5m -Xms4g -Xmx4g"
 JAVA_OPTS="${BEAGLE_JAVA_OPTS:-${DEFAULT_JAVA_OPTS}}"
 
 echo "Beagle jar: ${BEAGLE_JAR}"
