@@ -12,6 +12,8 @@ from _version import __version__
 import hashlib
 import time
 import multiprocessing
+import time
+from datetime import datetime
 
 DEF_QC_FILTER='INFO/MQ>59 & INFO/MQRankSum>-2 & AVG(FORMAT/DP)>20 & AVG(FORMAT/DP)<100 & INFO/QD>15 & INFO/BaseQRankSum>-2 & INFO/SOR<1'
 ROOT_DIR = path.abspath(path.dirname(__file__))
@@ -316,12 +318,14 @@ def estimate(vcf, ref, output,
         snakemake_strict, cpus, **pipeline_opts):
     """ Estimate relatedness using IBD0
     """
+    start_time = time.time()
     tribes = None
     try:
         ctx = Context(yes, verbose)
         ctx.echo("TRIBES version: %s\n" % __version__)
         ctx.echo("Estimating relatedness using IBD0.")
 
+        ctx.debug("Starting at: %s." % datetime.fromtimestamp(start_time).isoformat())
         # Echo parameters
         ctx.debug("Options in effect: %s." % click.get_current_context().params)
 
@@ -353,7 +357,13 @@ def estimate(vcf, ref, output,
         tribes.save_outputs(ctx)
         if not keep_work_dir:
             tribes.clean(ctx)
-        ctx.info("Done.")
+
+        end_time = time.time()
+        ctx.debug("Stopping at: %s." % datetime.fromtimestamp(end_time).isoformat())
+
+        run_time = end_time - start_time
+        ctx.info("Finished in: %0.2f sec." % run_time)
+
     except ApplicationError as e:
         ctx.error(e.msg)
         if tribes and tribes.exists():
