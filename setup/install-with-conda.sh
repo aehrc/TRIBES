@@ -14,7 +14,7 @@ else
 fi
 
 TRIBES_ENV=tribes
-${CONDA_BASE}/bin/conda env create -n ${TRIBES_ENV} -f setup/environment.yaml
+${CONDA_BASE}/bin/conda env update -n ${TRIBES_ENV} -f setup/environment.yaml
 source "${CONDA_BASE}/bin/activate" ${TRIBES_ENV}
 Rscript --vanilla -e "install.packages('R/tribes.tools',repos=NULL)"
 cat > "${HOME}/.tribesrc" <<EOF
