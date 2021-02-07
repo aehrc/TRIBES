@@ -19,7 +19,7 @@ rule phase_with_ref:
        ref_sample = get_ref_sample()
     threads: 64
     shell:
-        "beaglew impute=false gt={input} ref={params.ref_sample}/{wildcards.file}.vcf.gz out={params.prefix}"
+        "beaglew impute=false gt={input} ref={params.ref_sample}/{wildcards.file}.vcf.gz out={params.prefix} nthreads={threads}"
 
 #
 # Phase WITHOUT Reference Geonme
@@ -34,7 +34,7 @@ rule phase_without_ref:
        prefix="{dir}_PH/{file}"
     threads: 64 
     shell:
-        "beaglew impute=false gt={input} out={params.prefix}"
+        "beaglew impute=false gt={input} out={params.prefix} nthreads={threads}" 
 
 
 #
