@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: continuumio/miniconda3:latest
+From: continuumio/miniconda3:4.8.2
 
 
 %files
@@ -15,50 +15,28 @@ From: continuumio/miniconda3:latest
     export LC_ALL=C
 
 %post
-apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends libnss-sss
+    apt-get update --allow-releaseinfo-change && apt-get upgrade -y && apt-get install -y --no-install-recommends libnss-sss
 
-apt-get clean && apt-get update && apt-get install -y locales && \
-    echo "LC_ALL=en_US.UTF-8" >> /etc/environment  && \
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen  && \
-    echo "LANG=en_US.UTF-8" > /etc/locale.conf  && \
-    locale-gen en_US.UTF-8
+    apt-get clean && apt-get update && apt-get install -y locales && \
+        echo "LC_ALL=en_US.UTF-8" >> /etc/environment  && \
+        echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen  && \
+        echo "LANG=en_US.UTF-8" > /etc/locale.conf  && \
+        locale-gen en_US.UTF-8
 
-apt-get install -y --no-install-recommends libfontconfig1
+    apt-get install -y --no-install-recommends libfontconfig1
 
-apt-get install -y procps htop vim
+    apt-get install -y procps htop vim
 
-rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*
 
-conda install  --yes -n base -c defaults conda=4.7.12 && \
-    conda env update -n base --file /root/environment.yaml && \
-    conda clean   --yes --all
-RUN rm /root/environment.yaml
+    conda install  --yes -n base -c defaults conda=4.7.12 && \
+        conda env update -n base --file /root/environment.yaml && \
+        conda clean   --yes --all
+    rm /root/environment.yaml
 
-RUN Rscript --vanilla -e "install.packages('/root/R/tribes.tools',repos=NULL)"
-RUN rm -rf /root/R
+    Rscript --vanilla -e "install.packages('/root/R/tribes.tools',repos=NULL)"
+    rm -rf /root/R
 
-
-
-%runscript
-    echo "Container was created $NOW"
-    echo "Arguments received: $*"
-    exec echo "$@"
-
-%startscript
-    nc -lp $LISTEN_PORT
-
-%test
-    grep -q NAME=\"Ubuntu\" /etc/os-release
-    if [ $? -eq 0 ]; then
-        echo "Container base is Ubuntu as expected."
-    else
-        echo "Container base is not Ubuntu."
-        exit 1
-    fi
-
-%labels
-    Author d@sylabs.io
-    Version v0.0.1
 
 %help
     This is a demo container used to illustrate a def file that uses all
