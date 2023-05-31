@@ -5,7 +5,13 @@ From: continuumio/miniconda3:4.8.2
 %files
     setup/environment.yaml /root/environment.yaml
     R /root/R
-    _version.py Snakefile config.yaml *.smake tribes /opt/tribes/
+    _version.py /opt/tribes/
+    Snakefile /opt/tribes/
+    config.yaml /opt/tribes/
+    core.smake /opt/tribes/
+    process.smake /opt/tribes/
+    relations.smake /opt/tribes/
+    tribes /opt/tribes/
     scripts /opt/tribes/scripts
     python /opt/tribes/python
     notebooks /opt/tribes/notebooks
