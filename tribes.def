@@ -15,7 +15,15 @@ From: continuumio/miniconda3:4.8.2
     export LC_ALL=C
 
 %post
+    # Resolve issue with undefined user name for LDAP users, e.g remove warnings
+    #  group..
+    #  username..
     apt-get update --allow-releaseinfo-change && apt-get upgrade -y && apt-get install -y --no-install-recommends libnss-sss
+
+    # Solve locale issues when running bash.
+    #   /bin/bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+    #
+    # It breaks conda version check in snakemake:
 
     apt-get clean && apt-get update && apt-get install -y locales && \
         echo "LC_ALL=en_US.UTF-8" >> /etc/environment  && \
@@ -23,19 +31,32 @@ From: continuumio/miniconda3:4.8.2
         echo "LANG=en_US.UTF-8" > /etc/locale.conf  && \
         locale-gen en_US.UTF-8
 
+    # JAVA 8 missing fonts workaround:
+    # see https://bugs.debian.org/793210
+    # and https://github.com/docker-library/java/issues/46#issuecomment-119026586
+    # P.S: our java comes from conda, seems the same issue
     apt-get install -y --no-install-recommends libfontconfig1
 
+    # Install additional tools: ps, htop, vim
     apt-get install -y procps htop vim
 
+    # Cleanup
     rm -rf /var/lib/apt/lists/*
 
-    conda install  --yes -n base -c defaults conda=4.7.12 && \
-        conda env update -n base --file /root/environment.yaml && \
+    # Install snakemake and other packages
+    conda install --yes -n base -c defaults conda=4.7.12 && \
+        conda install -c conda-forge mamba && \
+        mamba env update -n base --file /root/environment.yaml && \
         conda clean   --yes --all
     rm /root/environment.yaml
 
+    #Install package
     Rscript --vanilla -e "install.packages('/root/R/tribes.tools',repos=NULL)"
     rm -rf /root/R
+
+
+%runscript
+    exec /opt/tribes/tribes "$@"
 
 
 %help
